@@ -1,0 +1,28 @@
+
+
+
+
+
+
+
+DATABASE:
+From an initial look, we'll need to periodically poll the users location. Therefore, we'll have to have a database which holds a record for each of these 'steps' or polls and a trip ID. This could be a table called 'Movement'
+
+
+We'll have to hold a table for each poll taken of the users location, which we'll call Movement.
+	- Foreign-key of Trip ID : (master) - > Int
+	- Sequence num. of each poll (i.e. loc 1 (-20, +20), loc 2 (-21, +20)) : Int
+	- Longitude val : Double (?)
+	- Latitude val : Double (?)
+
+
+We'll have to store notes for the route ID, this can be in a table called Notes.
+
+Or (as of now, preferred way), we could have a 'master' table that holds:
+	- The primary key of the trip
+	- Name (for now, 7th Dec 2019 St. 12pm #0)
+	- Start position (sourced from Movement table)
+	- End position   (again from Movement table, using PKID trip key)
+	- Misc data. We should store this in JSON for extensibility; if we need to add ratings, extra notes, these are easy to add in JSON key-value pairs).
+
+I'd prefer this as there start-end date can be cross-referenced, the movement data (which will take up a lot of records) will be isolated; the Misc data being in JSON is very extensible and easily decipherable. 
