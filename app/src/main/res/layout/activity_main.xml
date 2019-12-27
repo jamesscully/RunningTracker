@@ -7,7 +7,7 @@
     tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/main_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="64dp"
@@ -26,16 +26,16 @@
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView">
+        app:layout_constraintTop_toBottomOf="@+id/main_logo">
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/main_img_running"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             app:srcCompat="@drawable/ic_running" />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/main_txt_status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="42km &#8226; 13h37m"
@@ -43,7 +43,7 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/main_btn_startstop"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
@@ -64,24 +64,24 @@
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button2">
+        app:layout_constraintTop_toBottomOf="@+id/main_btn_startstop">
 
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/main_btn_pasttrips"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:text="View Previous Trips" />
 
         <Button
-            android:id="@+id/button4"
+            android:id="@+id/main_btn_options"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:text="Options" />
 
         <Button
-            android:id="@+id/button5"
+            android:id="@+id/main_btn_exit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Exit" />
