@@ -14,8 +14,7 @@ import androidx.core.app.ComponentActivity
 import androidx.core.app.ComponentActivity.ExtraData
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-
-
+import com.example.mdprunningtracker.database.DBHelper
 
 
 // implements OnMapReadyCallback
@@ -24,6 +23,11 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
     lateinit var googleMap: GoogleMap
 
     override fun onMapReady(map: GoogleMap?) {
+
+
+
+
+
 
         System.err.println("MAP IS NOW READY")
 
@@ -48,6 +52,10 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFrag : SupportMapFragment = supportFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment
         mapFrag.getMapAsync(this)
 
+        val db = DBHelper(this)
+        val thedb = db.writableDatabase
+        db.close()
+
         // note: use polyline to list routes
         ourbutton.setOnClickListener {
             System.err.println("CHANGINGTYPE")
@@ -61,12 +69,8 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
                     .color(Color.RED)
             )
 
-
-
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(target, 128.0f))
         }
     }
 
 }
-
-// AIzaSyCMu0ELcICduowXc7tUsIX2mNNroKfELq8
