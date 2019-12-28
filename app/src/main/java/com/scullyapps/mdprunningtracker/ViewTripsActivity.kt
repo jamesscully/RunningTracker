@@ -1,4 +1,4 @@
-package com.example.mdprunningtracker
+package com.scullyapps.mdprunningtracker
 
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
@@ -14,7 +14,7 @@ import androidx.core.app.ComponentActivity
 import androidx.core.app.ComponentActivity.ExtraData
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-import com.example.mdprunningtracker.database.DBHelper
+import com.scullyapps.mdprunningtracker.database.DBHelper
 
 
 // implements OnMapReadyCallback

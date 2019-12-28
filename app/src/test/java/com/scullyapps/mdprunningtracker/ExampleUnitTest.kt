@@ -1,4 +1,4 @@
-package com.example.mdprunningtracker
+package com.scullyapps.mdprunningtracker
 
 import org.junit.Test
 

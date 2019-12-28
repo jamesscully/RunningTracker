@@ -1,4 +1,4 @@
-package com.example.mdprunningtracker.database;
+package com.scullyapps.mdprunningtracker.database;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;

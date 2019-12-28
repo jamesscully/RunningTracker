@@ -1,4 +1,4 @@
-package com.example.mdprunningtracker
+package com.scullyapps.mdprunningtracker
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
