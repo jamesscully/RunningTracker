@@ -30,6 +30,13 @@
             android:name="org.apache.http.legacy"
             android:required="false" />
 
+        <provider
+            android:authorities="com.scullyapps.mdprunningtracker.database.RunContentProvider"
+            android:name="com.scullyapps.mdprunningtracker.database.RunContentProvider"
+            android:exported="true"
+            android:multiprocess="true"/>
+
+
 
     </application>
 

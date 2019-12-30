@@ -14,7 +14,10 @@ import androidx.core.app.ComponentActivity
 import androidx.core.app.ComponentActivity.ExtraData
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import com.scullyapps.mdprunningtracker.database.Contract
 import com.scullyapps.mdprunningtracker.database.DBHelper
+import com.scullyapps.mdprunningtracker.model.Trip
+import java.sql.Timestamp
 
 
 // implements OnMapReadyCallback
@@ -24,11 +27,6 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(map: GoogleMap?) {
 
-
-
-
-
-
         System.err.println("MAP IS NOW READY")
 
         map?.addMarker(
@@ -37,12 +35,12 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .title("Marker")
         )
 
+
         map?.moveCamera(CameraUpdateFactory.newLatLng(LatLng(51.5074, 0.1278)))
 
         if(map != null) {
             googleMap = map
         }
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,25 +50,28 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFrag : SupportMapFragment = supportFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment
         mapFrag.getMapAsync(this)
 
-        val db = DBHelper(this)
-        val thedb = db.writableDatabase
-        db.close()
+        val opts : PolylineOptions
 
-        // note: use polyline to list routes
-        ourbutton.setOnClickListener {
-            System.err.println("CHANGINGTYPE")
+        val trips = ArrayList<Trip>()
 
-            val target = LatLng(51.5074, 0.1278)
+        val projection = arrayOf(
+            Contract.TRIP._ID,
+            Contract.TRIP.NAME,
+            Contract.TRIP.NOTES
+        )
 
-            val line = googleMap.addPolyline(
-                PolylineOptions()
-                    .add(LatLng(51.5, -0.1), LatLng(40.7, -74.0))
-                    .width(5f)
-                    .color(Color.RED)
-            )
+        val c = contentResolver.query(Contract.ALL_TRIPS, projection, null, null, "_id ASC")
 
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(target, 128.0f))
+        if(c != null) {
+            c.moveToFirst()
+
+            while(!c.isAfterLast) {
+                trips.add(Trip(this, c.getInt(0), c.getString(1), c.getString(2)))
+                c.moveToNext()
+            }
         }
+
+
     }
 
 }
