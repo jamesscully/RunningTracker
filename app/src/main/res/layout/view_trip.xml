@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="125dp"
     android:background="#EBEBEB"
@@ -39,8 +40,8 @@
             android:layout_weight="0"
             android:drawableLeft="@drawable/ic_running"
             android:gravity="center_vertical"
-            android:text="1337m"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="1337m" />
 
         <TextView
             android:id="@+id/view_trip_elevgain"
@@ -50,7 +51,7 @@
             android:layout_weight="0"
             android:drawableLeft="@drawable/ic_chart"
             android:gravity="center_vertical"
-            android:text="51m " />
+            tools:text="51m " />
 
         <TextView
             android:id="@+id/view_trip_time"
@@ -60,7 +61,7 @@
             android:layout_weight="0"
             android:drawableLeft="@drawable/ic_time"
             android:gravity="center_vertical"
-            android:text="1h20m" />
+            tools:text="1h20m" />
 
         <TextView
             android:id="@+id/view_trip_unknown"

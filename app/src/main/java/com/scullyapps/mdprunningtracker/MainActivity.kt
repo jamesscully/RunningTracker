@@ -16,6 +16,8 @@ class MainActivity : AppCompatActivity() {
 
         setupButtons()
 
+        startActivity(Intent(this, ViewTripsActivity::class.java))
+
     }
 
     fun setupButtons() {

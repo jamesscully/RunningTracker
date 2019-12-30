@@ -1,12 +1,14 @@
 package com.scullyapps.mdprunningtracker.model
 
 import android.content.Context
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
 import com.scullyapps.mdprunningtracker.database.Contract
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.round
 
 data class Trip (val context: Context, val id : Int, var name : String, var notes : String) {
 
@@ -56,6 +58,7 @@ data class Trip (val context: Context, val id : Int, var name : String, var note
     fun getStartDate() : String {
         val firstPoint = movement.trackpoints[0].time
 
+        // we'll need to get and clear our calendar
         val time = Calendar.getInstance()
         time.clear()
 
@@ -63,7 +66,59 @@ data class Trip (val context: Context, val id : Int, var name : String, var note
 
         val date : Date = time.time
 
+        // according to Android Studio, this will give the local time format for each country.
         return DateFormat.getDateInstance().format(date)
+    }
+
+    fun getDistanceStamp() : String {
+        val d = movement.getTotalDistance()
+
+        val km = round(d / 1000)
+
+        // km or m
+        if(d > 1000)
+            return "${km}km"
+        else
+            return "${d}m"
+    }
+
+    fun getElevationGain() : Double {
+
+        var gain = 0.0
+        val points = movement.trackpoints
+
+        var start = points[0].elev
+
+        var increasing = false
+
+        for(x in 1 until points.size) {
+            val current = points[x].elev
+
+            if(current > start) {
+                gain += (current - start)
+                increasing = true
+            } else {
+                increasing = false
+            }
+
+            if(!increasing) {
+                start = current
+            }
+
+        }
+
+        return gain
+    }
+
+    // this function generates the bounds needed to include all points on the map
+    // We can pass this to the Google Maps camera for movement
+    fun getLatLngBounds() : LatLngBounds {
+        val bounds = LatLngBounds.Builder()
+
+        for(x in movement.trackpoints) {
+            bounds.include(x.latLng)
+        }
+        return bounds.build()
     }
 
 
@@ -78,6 +133,7 @@ data class Trip (val context: Context, val id : Int, var name : String, var note
             Contract.MOVEMENT.TIME
         )
 
+        // ID_URI is a function in contract that returns the Uri for a specific ID.
         val cur = context.contentResolver.query(Contract.ID_URI(Contract.ALL_MOVEMENT, id), projection, null, null, "seq ASC")
 
         var tracks = ArrayList<Trackpoint>()

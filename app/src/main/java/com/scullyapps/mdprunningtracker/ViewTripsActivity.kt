@@ -1,13 +1,16 @@
 package com.scullyapps.mdprunningtracker
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import com.google.android.gms.maps.*
 import kotlinx.android.synthetic.main.activity_view_trips.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.maps.model.LatLngBounds
 import com.scullyapps.mdprunningtracker.database.Contract
 import com.scullyapps.mdprunningtracker.model.Trip
 import com.scullyapps.mdprunningtracker.recyclers.TripAdapter
@@ -20,7 +23,7 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
              val trips = ArrayList<Trip>()
 
     private lateinit var recycler : RecyclerView
-    private lateinit var mAdapter  : RecyclerView.Adapter<*>
+    private lateinit var mAdapter  : TripAdapter
     private lateinit var mManager  : RecyclerView.LayoutManager
 
     override fun onMapReady(map: GoogleMap?) {
@@ -59,10 +62,8 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
                 trips.add(Trip(this, c.getInt(0), c.getString(1), c.getString(2)))
                 c.moveToNext()
             }
-
             c.close()
         }
-
         setupRecycler()
     }
 
@@ -74,6 +75,20 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
             setHasFixedSize(true)
             layoutManager = mManager
             adapter = mAdapter
+        }
+
+        mAdapter.onItemClick = { pos, view ->
+
+            val trip = trips[pos]
+
+            Toast.makeText(this, trip.name, Toast.LENGTH_LONG).show()
+
+            googleMap.addPolyline(
+                trip.plotLineOptions.width(50f).color(Color.MAGENTA)
+            )
+
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(trip.getLatLngBounds(), 100))
+
         }
     }
 
