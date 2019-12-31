@@ -50,7 +50,7 @@ class Movement(tkpts : ArrayList<Trackpoint>) {
         return poly
     }
 
-    fun getTotalUnixTime() : Int {
+    fun getTotalUnixTime() : Long {
         val begin = trackpoints[0].time
         val end   = trackpoints[trackpoints.size - 1].time
 

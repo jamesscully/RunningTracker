@@ -80,6 +80,11 @@ class ListTripsActivity : AppCompatActivity(), OnMapReadyCallback {
             if(file != null){
                 val next = DBHelper(this).nextTripId
                 val gpx = GPX(this, next, file)
+
+                val tIntent = Intent()
+                tIntent.setClass(this, ViewTripActivity::class.java)
+                tIntent.putExtra("trip", gpx.build())
+                startActivity(tIntent)
             }
         }
     }

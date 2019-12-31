@@ -37,7 +37,7 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
     lateinit var movement : Movement
 
     // getters to make things look nicer
-    val totalUnixTime : Int
+    val totalUnixTime : Long
         get() = movement.getTotalUnixTime()
 
     val plotLineOptions : PolylineOptions
@@ -48,7 +48,7 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
 
     // self explanatory
     fun getTimeStamp() : String {
-        val elapsed = totalUnixTime // ie 40
+        val elapsed : Long = totalUnixTime // ie 40
 
         // we can use Calendar to get our h/m/s in the format we want.
         // in this case, we want e.g. 1h2m30s for aesthetics
@@ -57,11 +57,19 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
         time.clear()
 
         // this will adjust other values if > 60
-        time.set(Calendar.SECOND, elapsed)
+        time.timeInMillis = elapsed * 1000L
 
-        val hours = time.get(Calendar.HOUR)
-        val mins  = time.get(Calendar.MINUTE)
-        val secs  = time.get(Calendar.SECOND)
+//        val hours = time.get(Calendar.HOUR)
+//        val mins  = time.get(Calendar.MINUTE)
+//        val secs  = time.get(Calendar.SECOND)
+
+        var temp : Long = elapsed
+
+        val hours = temp / (60 * 60)
+        temp %= (60 * 60)
+        val mins  = temp / 60
+        temp %= 60
+        val secs  = temp
 
         var out = ""
 
@@ -85,7 +93,7 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
         val time = Calendar.getInstance()
         time.clear()
 
-        time.set(Calendar.SECOND, firstPoint)
+        time.timeInMillis = firstPoint * 1000L
 
         val date : Date = time.time
 

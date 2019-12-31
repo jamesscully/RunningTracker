@@ -27,7 +27,7 @@ class TrackpointView(context: Context, track : Trackpoint) : ConstraintLayout(co
         val time = Calendar.getInstance()
 
         time.clear()
-        time.set(Calendar.SECOND, track.time)
+        time.timeInMillis = (track.time * 1000L)
 
         val stamp : String = String.format("%02d:%02d:%02d", time.get(Calendar.HOUR_OF_DAY), time.get(Calendar.MINUTE), time.get(Calendar.SECOND)).toString()
 

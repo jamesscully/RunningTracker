@@ -7,6 +7,10 @@ import com.scullyapps.mdprunningtracker.model.Trackpoint
 import com.scullyapps.mdprunningtracker.model.Trip
 import java.io.InputStream
 import org.w3c.dom.Element;
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.collections.ArrayList
 
@@ -46,10 +50,17 @@ class GPX (context: Context, proposedID : Int, uri : Uri) {
             val lat = element.getAttribute("lat").toDoubleOrNull()
             val lng = element.getAttribute("lon").toDoubleOrNull()
             val elev = elevEl.item(0).textContent.toDoubleOrNull()
-            val time = timeEl.item(0).textContent.toIntOrNull()
+
+            // GPX 1.1 uses the ISO8601 timeformat, so we'll convert this to unix time
+            val ISO8601 = timeEl.item(0).textContent
+
+            val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ") as DateFormat
+            val result = df.parse(ISO8601)
+
+            val time = result.time
 
             if(lat == null || lng == null || elev == null || time == null) {
-                error("Error retrieving appropriate value from GPX data, skipping trkpt ${x}")
+                System.err.println("Error retrieving appropriate value from GPX data, skipping trkpt ${x}")
                 continue
             }
 

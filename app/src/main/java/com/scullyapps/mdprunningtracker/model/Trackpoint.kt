@@ -9,7 +9,7 @@ data class Trackpoint(val tID  : Int,
                       var lat  : Double,
                       var lng  : Double,
                       var elev : Double = -1.0,
-                      var time : Int = 0) {
+                      var time : Long = 0) {
 
     val latLng = LatLng(lat, lng)
 
@@ -22,7 +22,7 @@ data class Trackpoint(val tID  : Int,
                 cursor.getDouble(2),
                 cursor.getDouble(3),
                 cursor.getDouble(4),
-                cursor.getInt(5)
+                cursor.getLong(5)
             )
         }
     }
