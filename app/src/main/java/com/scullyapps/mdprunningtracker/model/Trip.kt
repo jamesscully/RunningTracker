@@ -14,6 +14,7 @@ data class Trip (val context: Context, val id : Int, var name : String, var note
 
     lateinit var movement : Movement
 
+    // getters to make things look nicer
     val totalUnixTime : Int
         get() = movement.getTotalUnixTime()
 
@@ -21,11 +22,13 @@ data class Trip (val context: Context, val id : Int, var name : String, var note
         get() = movement.getPlotLine()
 
 
+    // once we've got our ID, we can move on and get Movement data
     init {
         getMovement()
     }
 
 
+    // self explanatory
     fun getTimeStamp() : String {
         val elapsed = totalUnixTime // ie 40
 
@@ -55,6 +58,8 @@ data class Trip (val context: Context, val id : Int, var name : String, var note
         return out
     }
 
+    // this gets our start date, which will be used for displaying when
+    // each run took place independent of the name
     fun getStartDate() : String {
         val firstPoint = movement.trackpoints[0].time
 
@@ -70,6 +75,7 @@ data class Trip (val context: Context, val id : Int, var name : String, var note
         return DateFormat.getDateInstance().format(date)
     }
 
+    // this function generates the stamp for distance, i.e. 1.31km or 300m
     fun getDistanceStamp() : String {
         val d = movement.getTotalDistance()
 
@@ -82,6 +88,7 @@ data class Trip (val context: Context, val id : Int, var name : String, var note
             return "${d}m"
     }
 
+    // not sure this will be implemented; elevation gain is apparently very tricky
     fun getElevationGain() : Double {
 
         var gain = 0.0
@@ -148,8 +155,5 @@ data class Trip (val context: Context, val id : Int, var name : String, var note
         }
 
         movement = Movement(tracks)
-
-
-//        Toast.makeText(context, "Total Distance: ${movement.getTotalDistance()}", Toast.LENGTH_LONG).show()
     }
 }

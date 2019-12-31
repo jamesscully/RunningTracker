@@ -1,6 +1,10 @@
 package com.scullyapps.mdprunningtracker
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -11,12 +15,16 @@ import com.google.android.gms.maps.model.MarkerOptions
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.PolylineOptions
 import com.scullyapps.mdprunningtracker.database.Contract
+import com.scullyapps.mdprunningtracker.gpx.GPX
 import com.scullyapps.mdprunningtracker.model.Trip
 import com.scullyapps.mdprunningtracker.recyclers.TripAdapter
+import androidx.core.app.ActivityCompat
+import android.content.pm.PackageManager
+import java.io.File
 
 
-// implements OnMapReadyCallback
 class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     lateinit var googleMap: GoogleMap
@@ -27,22 +35,34 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mManager  : RecyclerView.LayoutManager
 
     override fun onMapReady(map: GoogleMap?) {
-
-        System.err.println("MAP IS NOW READY")
-
-        map?.addMarker(
-            MarkerOptions()
-                .position(LatLng(51.5074, 0.1278))
-                .title("London")
-        )
-
-
-        map?.moveCamera(CameraUpdateFactory.newLatLng(LatLng(51.5074, 0.1278)))
-
         if(map != null) {
             googleMap = map
+            map?.moveCamera(CameraUpdateFactory.newLatLng(LatLng(51.5074, 0.1278)))
         }
     }
+
+    private val REQUEST_EXTERNAL_STORAGE = 1
+    private val PERMISSIONS_STORAGE = arrayOf<String>(
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
+
+    fun verifyStoragePermissions(activity: Activity) {
+        // Check if we have write permission
+        val permission =
+            ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                activity,
+                PERMISSIONS_STORAGE,
+                REQUEST_EXTERNAL_STORAGE
+            )
+        }
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +85,38 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
             c.close()
         }
         setupRecycler()
+
+        verifyStoragePermissions(this)
+
+
+
+
+
+        button.setOnClickListener {
+            val intent = Intent()
+            intent.setType("*/*")
+                  .action = Intent.ACTION_GET_CONTENT
+
+            startActivityForResult(Intent.createChooser(intent, "Select GPX data"), 777)
+        }
+
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == 777 && resultCode == Activity.RESULT_OK) {
+            val file = data?.data
+
+            if(file != null){
+                val gpx = GPX(this, file)
+            }
+
+        }
+    }
+
+
+
+
 
     fun setupRecycler() {
         mManager = LinearLayoutManager(this)
@@ -78,18 +129,22 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         mAdapter.onItemClick = { pos, view ->
-
             val trip = trips[pos]
 
-            Toast.makeText(this, trip.name, Toast.LENGTH_LONG).show()
 
             googleMap.addPolyline(
-                trip.plotLineOptions.width(50f).color(Color.MAGENTA)
+                getPolyLine(trip.plotLineOptions)
             )
 
             googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(trip.getLatLngBounds(), 100))
 
         }
+    }
+
+    // this standardizes our polyline process; we can
+    // simply change the line effects here rather than multiple places
+    fun getPolyLine(options : PolylineOptions) : PolylineOptions{
+        return options.width(25f).color(Color.BLUE)
     }
 
 }
