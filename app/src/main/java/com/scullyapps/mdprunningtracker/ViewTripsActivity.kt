@@ -22,6 +22,8 @@ import com.scullyapps.mdprunningtracker.model.Trip
 import com.scullyapps.mdprunningtracker.recyclers.TripAdapter
 import androidx.core.app.ActivityCompat
 import android.content.pm.PackageManager
+import com.scullyapps.mdprunningtracker.database.DBHelper
+import com.scullyapps.mdprunningtracker.database.RunContentProvider
 import java.io.File
 
 
@@ -41,28 +43,7 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private val REQUEST_EXTERNAL_STORAGE = 1
-    private val PERMISSIONS_STORAGE = arrayOf<String>(
-        Manifest.permission.READ_EXTERNAL_STORAGE,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE
-    )
-
-    fun verifyStoragePermissions(activity: Activity) {
-        // Check if we have write permission
-        val permission =
-            ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(
-                activity,
-                PERMISSIONS_STORAGE,
-                REQUEST_EXTERNAL_STORAGE
-            )
-        }
-    }
-
+    // todo implement permissions prompt
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,12 +67,6 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         setupRecycler()
 
-        verifyStoragePermissions(this)
-
-
-
-
-
         button.setOnClickListener {
             val intent = Intent()
             intent.setType("*/*")
@@ -108,7 +83,10 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
             val file = data?.data
 
             if(file != null){
-                val gpx = GPX(this, file)
+
+                val next = DBHelper(this).nextTripId
+
+                val gpx = GPX(this, next, file)
             }
 
         }

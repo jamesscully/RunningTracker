@@ -1,8 +1,12 @@
 package com.scullyapps.mdprunningtracker.database;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
+
+import androidx.annotation.NonNull;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -11,8 +15,10 @@ public class DBHelper extends SQLiteOpenHelper {
         super(context, "TripDB", null, 3);
     }
 
+
     @Override
     public void onCreate(SQLiteDatabase db) {
+
         db.execSQL("CREATE TABLE Trip (" +
                 "_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
                 "name TEXT," +
@@ -29,6 +35,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 "FOREIGN KEY(tID) REFERENCES Trip(_id)" +
                 ")");
 
+
+
         addTestData(db);
     }
 
@@ -39,6 +47,18 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("INSERT INTO Movement (tID, seq, lat, lng, elev, time) VALUES (1, 2, -50, 52, 52, 1577628565)");
         db.execSQL("INSERT INTO Movement (tID, seq, lat, lng, elev, time) VALUES (1, 3, -53, 50, 51, 1577628575)");
         db.execSQL("INSERT INTO Movement (tID, seq, lat, lng, elev, time) VALUES (1, 4, -54, 50, 50, 1577628585)");
+    }
+
+    public int getNextTripId() {
+        SQLiteDatabase db = getWritableDatabase();
+
+        Cursor c = db.rawQuery("SELECT seq FROM sqlite_sequence WHERE name='Trip'", null);
+
+        c.moveToFirst();
+            int max = c.getInt(0);
+        c.close();
+
+        return (max + 1);
     }
 
     @Override
