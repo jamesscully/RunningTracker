@@ -9,6 +9,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.scullyapps.mdprunningtracker.model.Movement
 import com.scullyapps.mdprunningtracker.model.Trackpoint
 import com.scullyapps.mdprunningtracker.model.Trip
 import com.scullyapps.mdprunningtracker.views.TrackpointView
@@ -40,8 +41,14 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFrag : SupportMapFragment = supportFragmentManager.findFragmentById(R.id.viewTripMap) as SupportMapFragment
             mapFrag.getMapAsync(this)
 
-        trip = intent.extras?.get("trip") as Trip
-        trip.getMovement(this)
+
+        if(intent.extras?.get("creating") as Boolean) {
+            trip = intent.extras?.get("trip") as Trip
+            trip.movement = intent.extras?.get("movement") as Movement
+        } else {
+            trip = intent.extras?.get("trip") as Trip
+            trip.getMovement(this)
+        }
 
         act_trip_name.setText(trip.name)
         act_trip_distance.text = trip.getDistanceStamp()
@@ -63,9 +70,11 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
         googleMap.clear()
         drawPolyline()
 
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(track.latLng, 50f))
+
         googleMap.addCircle(
             CircleOptions().center(track.latLng)
-                           .radius(10000.0)
+                           .radius(5.0)
                            .strokeColor(COLOR_DOT)
                            .fillColor(COLOR_DOT)
                            .zIndex(5f)
@@ -77,12 +86,11 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     fun drawPolyline() {
+
         googleMap.addPolyline(
             getPolyLine(trip.plotLineOptions).color(COLOR_LINE)
         )
-        for(x in trip.movement.trackpoints) {
-            drawMarkerDot(x)
-        }
+
     }
 
     fun drawMarkerDot(track: Trackpoint) {

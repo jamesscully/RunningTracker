@@ -65,6 +65,8 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
 
         var temp : Long = elapsed
 
+        // TODO check this for errors;
+
         val hours = temp / (60 * 60)
         temp %= (60 * 60)
         val mins  = temp / 60
@@ -74,12 +76,9 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
         var out = ""
 
         // concatenate if we need to; so we dont have 0h0m59s, just 59s
-        if(hours > 0)
-            out += "${hours}h "
-        if(mins  > 0)
-            out += "${mins}m "
-        if(secs  > 0)
-            out += "${secs}s"
+        if(hours > 0) out += "${hours}h "
+        if(mins  > 0) out += "${mins}m "
+        if(secs  > 0) out += "${secs}s"
 
         return out
     }

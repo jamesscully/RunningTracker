@@ -54,7 +54,7 @@ class GPX (context: Context, proposedID : Int, uri : Uri) {
             // GPX 1.1 uses the ISO8601 timeformat, so we'll convert this to unix time
             val ISO8601 = timeEl.item(0).textContent
 
-            val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ") as DateFormat
+            val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss") as DateFormat
             val result = df.parse(ISO8601)
 
             val time = result.time
@@ -69,10 +69,12 @@ class GPX (context: Context, proposedID : Int, uri : Uri) {
         }
     }
 
-    fun build() : Trip {
-        val movement : Movement = Movement(trackpoints)
-
+    fun getTrip() : Trip {
         return Trip(newID, "New GPX", "none")
+    }
+
+    fun getMovement() : Movement {
+        return Movement(trackpoints)
     }
 
 

@@ -2,6 +2,8 @@ package com.scullyapps.mdprunningtracker.model
 
 import android.graphics.Color
 import android.location.Location
+import android.os.Parcel
+import android.os.Parcelable
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
@@ -9,7 +11,7 @@ import com.google.maps.android.SphericalUtil
 
 // this class should contain all LatLng values of the Trip; we can add functions for max distance here.
 
-class Movement(tkpts : ArrayList<Trackpoint>) {
+class Movement(tkpts : ArrayList<Trackpoint>) : Parcelable {
 
     var trackpoints = tkpts
 
@@ -56,5 +58,28 @@ class Movement(tkpts : ArrayList<Trackpoint>) {
 
         return end - begin
     }
+
+
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeTypedList(trackpoints)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<Movement> {
+        override fun createFromParcel(source: Parcel): Movement {
+            var trk = ArrayList<Trackpoint>()
+            source.readTypedList(trk, Trackpoint.CREATOR)
+            return Movement(trk)
+        }
+
+        override fun newArray(size: Int): Array<Movement?> {
+            return arrayOfNulls(size)
+        }
+
+    }
+
 
 }

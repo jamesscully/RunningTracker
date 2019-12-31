@@ -83,7 +83,9 @@ class ListTripsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 val tIntent = Intent()
                 tIntent.setClass(this, ViewTripActivity::class.java)
-                tIntent.putExtra("trip", gpx.build())
+                tIntent.putExtra("creating", true)
+                tIntent.putExtra("trip", gpx.getTrip())
+                tIntent.putExtra("movement", gpx.getMovement())
                 startActivity(tIntent)
             }
         }
