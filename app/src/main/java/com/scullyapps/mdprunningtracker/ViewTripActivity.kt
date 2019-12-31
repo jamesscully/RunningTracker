@@ -8,10 +8,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.Cap
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
 import com.scullyapps.mdprunningtracker.model.Trackpoint
 import com.scullyapps.mdprunningtracker.model.Trip
 import com.scullyapps.mdprunningtracker.views.TrackpointView
@@ -21,6 +18,10 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
 
     lateinit var googleMap : GoogleMap
     lateinit var trip : Trip
+
+    val COLOR_LINE = Color.rgb(0, 32, 138)
+    val COLOR_DOT  = Color.rgb(13, 70, 160)
+    val COLOR_MARK = Color.rgb(84, 113, 210)
 
     override fun onMapReady(map: GoogleMap?) {
         if(map != null) {
@@ -61,6 +62,15 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
     fun highlightTrackpoint(track : Trackpoint) {
         googleMap.clear()
         drawPolyline()
+
+        googleMap.addCircle(
+            CircleOptions().center(track.latLng)
+                           .radius(10000.0)
+                           .strokeColor(COLOR_DOT)
+                           .fillColor(COLOR_DOT)
+                           .zIndex(5f)
+        )
+
         googleMap.addMarker(
             MarkerOptions().position(track.latLng).title("Test")
         )
@@ -68,11 +78,25 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
 
     fun drawPolyline() {
         googleMap.addPolyline(
-            getPolyLine(trip.plotLineOptions)
+            getPolyLine(trip.plotLineOptions).color(COLOR_LINE)
+        )
+        for(x in trip.movement.trackpoints) {
+            drawMarkerDot(x)
+        }
+    }
+
+    fun drawMarkerDot(track: Trackpoint) {
+        googleMap.addCircle(
+            CircleOptions()
+                .center(track.latLng)
+                .radius(10000.0)
+                .strokeColor(COLOR_MARK)
+                .fillColor(COLOR_MARK)
+                .zIndex(4f)
         )
     }
 
     fun getPolyLine(options : PolylineOptions) : PolylineOptions {
-        return options.width(15f).color(Color.BLUE)
+        return options.width(10f).color(Color.BLUE)
     }
 }
