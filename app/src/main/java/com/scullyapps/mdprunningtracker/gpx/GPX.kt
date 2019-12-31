@@ -13,6 +13,7 @@ import org.xml.sax.InputSource;
 import java.io.Reader
 import java.io.StringReader
 import java.util.*
+import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.collections.ArrayList
 
 // this class takes a GPX file, and parses it to take out the necessary data.
@@ -20,30 +21,33 @@ class GPX (context: Context, uri : Uri) {
     var trackpoints = ArrayList<Trackpoint>()
     var GPX : String = ""
 
-
     init {
-
-        val factory = XPathFactory.newInstance()
-        val xp : XPath = factory.newXPath()
-
         val io : InputStream = context.contentResolver.openInputStream(uri)!!
 
-        val nodes : NodeList = xp.evaluate("/gpx", InputSource(io), XPathConstants.NODESET) as NodeList
+        val bFactory = DocumentBuilderFactory.newInstance()
+        val dBuilder = bFactory.newDocumentBuilder()
 
-        for(x in 0 until nodes.length) {
-            val element = nodes.item(x) as Element
+        val document = dBuilder.parse(io)
 
-            System.err.println(element)
+        val tkList = document.getElementsByTagName("trkpt")
 
+        for(x in 0 until tkList.length) {
+            val element = tkList.item(x) as Element
+
+            val elev = element.getElementsByTagName("ele")
+            val time = element.getElementsByTagName("time")
+
+            print("lat: " + element.getAttribute("lat"))
+            print("lon: " + element.getAttribute("lat"))
+
+            print("elev: " + elev.item(0).textContent)
+            print("time: " + time.item(0).textContent)
+
+            println()
         }
 
-    }
 
-    fun convertStreamToString(`is`: java.io.InputStream): String {
-        val s = java.util.Scanner(`is`).useDelimiter("\\A")
-        return if (s.hasNext()) s.next() else ""
     }
-
 
 
 }
