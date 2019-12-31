@@ -1,33 +1,24 @@
 package com.scullyapps.mdprunningtracker
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
-import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
 import com.google.android.gms.maps.*
-import kotlinx.android.synthetic.main.activity_view_trips.*
+import kotlinx.android.synthetic.main.activity_list_trips.*
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
 import com.scullyapps.mdprunningtracker.database.Contract
 import com.scullyapps.mdprunningtracker.gpx.GPX
 import com.scullyapps.mdprunningtracker.model.Trip
 import com.scullyapps.mdprunningtracker.recyclers.TripAdapter
-import androidx.core.app.ActivityCompat
-import android.content.pm.PackageManager
 import com.scullyapps.mdprunningtracker.database.DBHelper
-import com.scullyapps.mdprunningtracker.database.RunContentProvider
-import java.io.File
 
 
-class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
+class ListTripsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     lateinit var googleMap: GoogleMap
              val trips = ArrayList<Trip>()
@@ -47,7 +38,7 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_view_trips)
+        setContentView(R.layout.activity_list_trips)
 
         val mapFrag : SupportMapFragment = supportFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment
         mapFrag.getMapAsync(this)
@@ -60,7 +51,7 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
             c.moveToFirst()
 
             while(!c.isAfterLast) {
-                trips.add(Trip(this, c.getInt(0), c.getString(1), c.getString(2)))
+                trips.add(Trip(c.getInt(0), c.getString(1), c.getString(2)))
                 c.moveToNext()
             }
             c.close()
@@ -83,17 +74,11 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
             val file = data?.data
 
             if(file != null){
-
                 val next = DBHelper(this).nextTripId
-
                 val gpx = GPX(this, next, file)
             }
-
         }
     }
-
-
-
 
 
     fun setupRecycler() {
@@ -109,13 +94,16 @@ class ViewTripsActivity : AppCompatActivity(), OnMapReadyCallback {
         mAdapter.onItemClick = { pos, view ->
             val trip = trips[pos]
 
-
             googleMap.addPolyline(
                 getPolyLine(trip.plotLineOptions)
             )
-
             googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(trip.getLatLngBounds(), 100))
+        }
 
+        mAdapter.onOpenClick = { pos, view ->
+            val tIntent = Intent()
+            tIntent.setClass(this, ViewTripActivity::class.java)
+            tIntent.putExtra("trip", trips[pos])
         }
     }
 

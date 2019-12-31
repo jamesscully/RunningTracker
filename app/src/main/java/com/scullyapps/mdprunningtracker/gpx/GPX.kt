@@ -6,15 +6,7 @@ import com.scullyapps.mdprunningtracker.model.Movement
 import com.scullyapps.mdprunningtracker.model.Trackpoint
 import com.scullyapps.mdprunningtracker.model.Trip
 import java.io.InputStream
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import java.io.Reader
-import java.io.StringReader
-import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.collections.ArrayList
 
@@ -69,7 +61,7 @@ class GPX (context: Context, proposedID : Int, uri : Uri) {
     fun build() : Trip {
         val movement : Movement = Movement(trackpoints)
 
-        return Trip(context, newID, "New GPX", "none")
+        return Trip(newID, "New GPX", "none")
     }
 
 

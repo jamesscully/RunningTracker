@@ -4,11 +4,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.scullyapps.mdprunningtracker.R
 import com.scullyapps.mdprunningtracker.model.Trip
-import com.scullyapps.mdprunningtracker.views.TripView
 import kotlinx.android.synthetic.main.view_trip.view.*
 
 
@@ -18,6 +18,7 @@ class TripAdapter (private val dataset : ArrayList<Trip>) : RecyclerView.Adapter
     // found at https://stackoverflow.com/questions/54219825/android-kotlin-how-to-add-click-listener-to-recyclerview-adapter
     // kotlin makes somethings harder than java I guess
     var onItemClick: ((pos:Int, view : View) -> Unit)? = null
+    var onOpenClick: ((pos:Int, view : View) -> Unit)? = null
 
     inner class TripViewHolder(v : FrameLayout) : RecyclerView.ViewHolder(v), View.OnClickListener {
         val name     : TextView = v.view_trip_name
@@ -25,6 +26,8 @@ class TripAdapter (private val dataset : ArrayList<Trip>) : RecyclerView.Adapter
         val distance : TextView = v.view_trip_distance
         val elevGain : TextView = v.view_trip_elevgain
         val time     : TextView = v.view_trip_time
+
+        val bOpen : ImageView = v.view_trip_open
 
         override fun onClick(v: View) {
             onItemClick?.invoke(adapterPosition, v)
@@ -42,7 +45,7 @@ class TripAdapter (private val dataset : ArrayList<Trip>) : RecyclerView.Adapter
     }
 
     // this is where we actually fill in the data; typically I'd do this in TripView, but recyclerviews n stuff
-    override fun onBindViewHolder(holder: TripAdapter.TripViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: TripAdapter.TripViewHolder, position: Int){
         val data : Trip = dataset[position]
 
         holder.name.text = data.name
@@ -50,6 +53,11 @@ class TripAdapter (private val dataset : ArrayList<Trip>) : RecyclerView.Adapter
         holder.date.text = data.getStartDate()
         holder.distance.text = data.getDistanceStamp()
         holder.elevGain.text = "N/A"
+
+        holder.bOpen.setOnClickListener {
+            print("WE NEED TO OPEN THIS NOW MR PRESIDENT")
+            onOpenClick?.invoke(position, it)
+        }
 
     }
     override fun getItemCount() = dataset.size

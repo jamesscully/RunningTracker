@@ -1,16 +1,38 @@
 package com.scullyapps.mdprunningtracker.model
 
 import android.content.Context
+import android.os.Parcel
+import android.os.Parcelable
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
 import com.scullyapps.mdprunningtracker.database.Contract
 import java.text.DateFormat
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.round
 
-data class Trip (val context: Context, val id : Int, var name : String, var notes : String) {
+data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
+
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeInt(id)
+        dest.writeString(name)
+        dest.writeString(notes)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<Trip> {
+        override fun createFromParcel(source: Parcel): Trip {
+            return Trip(source.readInt(), source.readString()!!, source.readString()!!)
+        }
+
+        override fun newArray(size: Int): Array<Trip?> {
+            return arrayOfNulls(size)
+        }
+
+    }
 
     lateinit var movement : Movement
 
@@ -129,7 +151,7 @@ data class Trip (val context: Context, val id : Int, var name : String, var note
     }
 
 
-    fun getMovement() {
+    fun getMovement(context: Context) {
 
         val projection = arrayOf(
             Contract.MOVEMENT.T_ID,

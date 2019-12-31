@@ -3,6 +3,7 @@ package com.scullyapps.mdprunningtracker.views
 import android.content.Context
 import android.view.LayoutInflater
 import android.widget.FrameLayout
+import android.widget.TextView
 import com.scullyapps.mdprunningtracker.R
 import com.scullyapps.mdprunningtracker.model.Trip
 

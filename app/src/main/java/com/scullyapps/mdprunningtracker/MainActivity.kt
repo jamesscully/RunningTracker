@@ -16,13 +16,13 @@ class MainActivity : AppCompatActivity() {
 
         setupButtons()
 
-        startActivity(Intent(this, ViewTripsActivity::class.java))
+        startActivity(Intent(this, ListTripsActivity::class.java))
 
     }
 
     fun setupButtons() {
         main_btn_pasttrips.setOnClickListener {
-            startActivity(Intent(this, ViewTripsActivity::class.java))
+            startActivity(Intent(this, ListTripsActivity::class.java))
         }
     }
 
