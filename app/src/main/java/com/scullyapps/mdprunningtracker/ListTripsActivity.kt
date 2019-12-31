@@ -51,7 +51,11 @@ class ListTripsActivity : AppCompatActivity(), OnMapReadyCallback {
             c.moveToFirst()
 
             while(!c.isAfterLast) {
-                trips.add(Trip(c.getInt(0), c.getString(1), c.getString(2)))
+
+                val trip = Trip(c.getInt(0), c.getString(1), c.getString(2))
+                trip.getMovement(this)
+
+                trips.add(trip)
                 c.moveToNext()
             }
             c.close()
@@ -104,6 +108,7 @@ class ListTripsActivity : AppCompatActivity(), OnMapReadyCallback {
             val tIntent = Intent()
             tIntent.setClass(this, ViewTripActivity::class.java)
             tIntent.putExtra("trip", trips[pos])
+            startActivity(tIntent)
         }
     }
 

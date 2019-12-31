@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.scullyapps.mdprunningtracker.R
 import com.scullyapps.mdprunningtracker.model.Trackpoint
+import java.util.*
 
 
 class TrackpointView(context: Context, track : Trackpoint) : ConstraintLayout(context) {
@@ -21,7 +22,19 @@ class TrackpointView(context: Context, track : Trackpoint) : ConstraintLayout(co
 
         txtSequence.text = track.seq.toString()
         txtCoords.text = track.latLng.toString()
-        txtTimeStamp.text = "Not Implemented"
+
+
+        val time = Calendar.getInstance()
+
+        time.clear()
+        time.set(Calendar.SECOND, track.time)
+
+        val stamp : String = String.format("%02d:%02d:%02d", time.get(Calendar.HOUR_OF_DAY), time.get(Calendar.MINUTE), time.get(Calendar.SECOND)).toString()
+
+        txtTimeStamp.text = stamp
+
+
+
 
 
 

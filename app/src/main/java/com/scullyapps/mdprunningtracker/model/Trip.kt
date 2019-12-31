@@ -44,10 +44,6 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
         get() = movement.getPlotLine()
 
 
-    // once we've got our ID, we can move on and get Movement data
-    init {
-        getMovement()
-    }
 
 
     // self explanatory
