@@ -52,7 +52,7 @@ class TripAdapter (private val dataset : ArrayList<Trip>) : RecyclerView.Adapter
         holder.time.text = data.getTimeStamp()
         holder.date.text = data.getStartDate()
         holder.distance.text = data.getDistanceStamp()
-        holder.elevGain.text = "N/A"
+        holder.elevGain.text = data.getElevationGain().toString()
 
         holder.bOpen.setOnClickListener {
             print("WE NEED TO OPEN THIS NOW MR PRESIDENT")

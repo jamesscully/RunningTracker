@@ -19,9 +19,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ViewTripActivity"></activity>
-        <activity android:name=".ListTripsActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".activities.TrackActivity"></activity>
+        <activity android:name=".activities.IntroActivity" />
+        <activity android:name=".activities.ViewTripActivity" />
+        <activity android:name=".activities.ListTripsActivity" />
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

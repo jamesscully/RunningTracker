@@ -23,21 +23,16 @@ class TrackpointView(context: Context, track : Trackpoint) : ConstraintLayout(co
         txtSequence.text = track.seq.toString()
         txtCoords.text = track.latLng.toString()
 
-
         val time = Calendar.getInstance()
 
         time.clear()
         time.timeInMillis = (track.time * 1000L)
 
-        val stamp : String = String.format("%02d:%02d:%02d", time.get(Calendar.HOUR_OF_DAY), time.get(Calendar.MINUTE), time.get(Calendar.SECOND)).toString()
+        time.timeZone = TimeZone.getDefault()
+
+        val stamp : String = String.format("%02d:%02d:%02d", time.get(Calendar.HOUR_OF_DAY), time.get(Calendar.MINUTE), time.get(Calendar.SECOND))
 
         txtTimeStamp.text = stamp
-
-
-
-
-
-
     }
 
 }

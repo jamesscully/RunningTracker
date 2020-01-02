@@ -41,18 +41,15 @@ class Movement(tkpts : ArrayList<Trackpoint>) : Parcelable {
     fun getPlotLine() : PolylineOptions {
         val poly = PolylineOptions()
 
-
         for(x in 0 until trackpoints.size) {
             val current = trackpoints[x].latLng
-
             poly.add(current)
-            println("Adding LatLng = (${current.latitude},${current.longitude})")
         }
 
         return poly
     }
 
-    fun getTotalUnixTime() : Long {
+    fun getTotalSeconds() : Long {
         val begin = trackpoints[0].time
         val end   = trackpoints[trackpoints.size - 1].time
 
@@ -70,7 +67,7 @@ class Movement(tkpts : ArrayList<Trackpoint>) : Parcelable {
 
     companion object CREATOR : Parcelable.Creator<Movement> {
         override fun createFromParcel(source: Parcel): Movement {
-            var trk = ArrayList<Trackpoint>()
+            val trk = ArrayList<Trackpoint>()
             source.readTypedList(trk, Trackpoint.CREATOR)
             return Movement(trk)
         }

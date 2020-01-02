@@ -17,7 +17,6 @@ import kotlin.collections.ArrayList
 // this class takes a GPX file, and parses it to take out the necessary data.
 class GPX (context: Context, proposedID : Int, uri : Uri) {
     var trackpoints = ArrayList<Trackpoint>()
-    var GPX : String = ""
 
     val context = context
     val newID   = proposedID
@@ -35,18 +34,10 @@ class GPX (context: Context, proposedID : Int, uri : Uri) {
         for(x in 0 until tkList.length) {
             val element = tkList.item(x) as Element
 
-
-
             val elevEl = element.getElementsByTagName("ele")
             val timeEl = element.getElementsByTagName("time")
 
-            print("lat: " + element.getAttribute("lat"))
-            print("lon: " + element.getAttribute("lat"))
-
-            print("elev: " + elevEl.item(0).textContent)
-            print("time: " + timeEl.item(0).textContent)
-            println()
-
+            // we'll check these later to see if they're null
             val lat = element.getAttribute("lat").toDoubleOrNull()
             val lng = element.getAttribute("lon").toDoubleOrNull()
             val elev = elevEl.item(0).textContent.toDoubleOrNull()
@@ -54,10 +45,16 @@ class GPX (context: Context, proposedID : Int, uri : Uri) {
             // GPX 1.1 uses the ISO8601 timeformat, so we'll convert this to unix time
             val ISO8601 = timeEl.item(0).textContent
 
-            val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss") as DateFormat
-            val result = df.parse(ISO8601)
 
-            val time = result.time
+            // this seems to be the only easiest and non-mindbending solution, thanks to
+            // https://stackoverflow.com/a/27071102
+            val time = Instant.parse(ISO8601).epochSecond
+
+//            val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss") as DateFormat
+//            val result = df.parse(ISO8601)
+//
+//            var time = result.time
+
 
             if(lat == null || lng == null || elev == null || time == null) {
                 System.err.println("Error retrieving appropriate value from GPX data, skipping trkpt ${x}")

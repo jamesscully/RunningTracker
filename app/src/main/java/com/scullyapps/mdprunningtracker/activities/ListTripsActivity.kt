@@ -1,4 +1,4 @@
-package com.scullyapps.mdprunningtracker
+package com.scullyapps.mdprunningtracker.activities
 
 import android.app.Activity
 import android.content.Intent
@@ -11,6 +11,7 @@ import com.google.android.gms.maps.model.LatLng
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.model.PolylineOptions
+import com.scullyapps.mdprunningtracker.R
 import com.scullyapps.mdprunningtracker.database.Contract
 import com.scullyapps.mdprunningtracker.gpx.GPX
 import com.scullyapps.mdprunningtracker.model.Trip
@@ -115,6 +116,7 @@ class ListTripsActivity : AppCompatActivity(), OnMapReadyCallback {
             val tIntent = Intent()
             tIntent.setClass(this, ViewTripActivity::class.java)
             tIntent.putExtra("trip", trips[pos])
+            tIntent.putExtra("creating", false)
             startActivity(tIntent)
         }
     }

@@ -38,12 +38,10 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
 
     // getters to make things look nicer
     val totalUnixTime : Long
-        get() = movement.getTotalUnixTime()
+        get() = movement.getTotalSeconds()
 
     val plotLineOptions : PolylineOptions
         get() = movement.getPlotLine()
-
-
 
 
     // self explanatory
@@ -89,22 +87,29 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
         val firstPoint = movement.trackpoints[0].time
 
         // we'll need to get and clear our calendar
-        val time = Calendar.getInstance()
-        time.clear()
-
-        time.timeInMillis = firstPoint * 1000L
-
-        val date : Date = time.time
+//        val time = Calendar.getInstance()
+//        time.clear()
+//
+//        time.timeInMillis = firstPoint * 1000L
+//
+//        val date : Date = time.time
 
         // according to Android Studio, this will give the local time format for each country.
-        return DateFormat.getDateInstance().format(date)
+        return DateFormat.getDateInstance().format(Date(firstPoint * 1000L))
     }
 
     // this function generates the stamp for distance, i.e. 1.31km or 300m
-    fun getDistanceStamp() : String {
-        val d = movement.getTotalDistance()
+    fun getDistanceStamp(dist : Double = -1.0) : String {
+
+        var d : Double
+
+        if(dist == -1.0)
+            d = movement.getTotalDistance()
+        else
+            d = dist
 
         val km = round(d / 1000)
+             d = round(d)
 
         // km or m
         if(d > 1000)
@@ -113,36 +118,45 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
             return "${d}m"
     }
 
+    fun getAverageDistance() : String {
+        val distance = movement.getTotalDistance()
+        val time = movement.getTotalSeconds()
+
+        // avoid dividing by zero in the case of an error
+        if(distance == 0.0 || time == 0L)
+            return ""
+
+        // since we're using seconds, and we want 1337m(etres) / min, we multiply the distance by 60
+        // else, time / 60 could result in a float
+        var average = (distance * 60) / time
+
+        return (getDistanceStamp(average) + " / min")
+    }
+
+
+
     // not sure this will be implemented; elevation gain is apparently very tricky
     fun getElevationGain() : Double {
 
         var gain = 0.0
         val points = movement.trackpoints
 
-        var start = points[0].elev
-
-        var increasing = false
+        var previous = points[0].elev
 
         for(x in 1 until points.size) {
             val current = points[x].elev
 
-            if(current > start) {
-                gain += (current - start)
-                increasing = true
-            } else {
-                increasing = false
-            }
+            val difference = current - previous
 
-            if(!increasing) {
-                start = current
-            }
+            if(difference > 0)
+                gain += difference
 
         }
 
         return gain
     }
 
-    // this function generates the bounds needed to include all points on the map
+    // this function generates the bounds needed to include all trackpoints on the map
     // We can pass this to the Google Maps camera for movement
     fun getLatLngBounds() : LatLngBounds {
         val bounds = LatLngBounds.Builder()

@@ -1,7 +1,6 @@
-package com.scullyapps.mdprunningtracker
+package com.scullyapps.mdprunningtracker.activities
 
 import android.graphics.Color
-import android.graphics.Paint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -9,6 +8,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.scullyapps.mdprunningtracker.R
 import com.scullyapps.mdprunningtracker.model.Movement
 import com.scullyapps.mdprunningtracker.model.Trackpoint
 import com.scullyapps.mdprunningtracker.model.Trip
@@ -23,6 +23,8 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
     val COLOR_LINE = Color.rgb(0, 32, 138)
     val COLOR_DOT  = Color.rgb(13, 70, 160)
     val COLOR_MARK = Color.rgb(84, 113, 210)
+
+    val trackpoints get() = trip.movement.trackpoints
 
     override fun onMapReady(map: GoogleMap?) {
         if(map != null) {
@@ -42,6 +44,7 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
             mapFrag.getMapAsync(this)
 
 
+        // if we're creating, we're likely coming from importing a GPX file
         if(intent.extras?.get("creating") as Boolean) {
             trip = intent.extras?.get("trip") as Trip
             trip.movement = intent.extras?.get("movement") as Movement
@@ -53,8 +56,9 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
         act_trip_name.setText(trip.name)
         act_trip_distance.text = trip.getDistanceStamp()
         act_trip_time.text = trip.getTimeStamp()
+        act_trip_elevgain.text = trip.getElevationGain().toString().plus("m")
+        act_trip_speed.text = trip.getAverageDistance()
 
-        val trackpoints = trip.movement.trackpoints
 
         for(x in trackpoints) {
             val tv = TrackpointView(this, x)
@@ -70,11 +74,11 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
         googleMap.clear()
         drawPolyline()
 
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(track.latLng, 50f))
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(track.latLng, 17.5f))
 
         googleMap.addCircle(
             CircleOptions().center(track.latLng)
-                           .radius(5.0)
+                           .radius(1.0)
                            .strokeColor(COLOR_DOT)
                            .fillColor(COLOR_DOT)
                            .zIndex(5f)
@@ -85,24 +89,37 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
         )
     }
 
+
     fun drawPolyline() {
 
         googleMap.addPolyline(
             getPolyLine(trip.plotLineOptions).color(COLOR_LINE)
         )
 
+        drawStartEndMarkers()
     }
 
-    fun drawMarkerDot(track: Trackpoint) {
+    // this draws a dot on the start and finish points
+    fun drawStartEndMarkers() {
+        val start = trackpoints[0].latLng
+        val end   = trackpoints.last().latLng
+
+        // options apart from center
+        val opts =  CircleOptions()
+                    .radius(3.0)
+                    .strokeColor(Color.RED)
+                    .fillColor(Color.RED)
+                    .zIndex(4f)
+
         googleMap.addCircle(
-            CircleOptions()
-                .center(track.latLng)
-                .radius(10000.0)
-                .strokeColor(COLOR_MARK)
-                .fillColor(COLOR_MARK)
-                .zIndex(4f)
+            opts.center(start)
+        )
+
+        googleMap.addCircle(
+            opts.center(end)
         )
     }
+
 
     fun getPolyLine(options : PolylineOptions) : PolylineOptions {
         return options.width(10f).color(Color.BLUE)
