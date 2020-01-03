@@ -17,38 +17,58 @@ import com.google.android.gms.maps.model.LatLng
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import android.util.Log
+import android.view.View
 import androidx.core.content.ContextCompat
+import com.scullyapps.mdprunningtracker.model.Trackpoint
 
 
 class TrackService : Service() {
+
+    // if the service is bound, then we must be sending data to it.
+    // thus, whilst we are not bound we should collect these trackpoints into one group.
+    // when we rebind, we check to see if our new trackpoints > 0
+    // then we send these across, and clear our copy.
 
 
     private val TAG: String = "TrackService";
 
     lateinit var currentLatLng : LatLng
     var locManager : LocationManager? = null
-    var listener : LocListener? = null
+    var listener   : LocListener? = null
+
+    var trackpoints = ArrayList<Trackpoint>()
 
     val binder = OurLocBinder()
 
+    val NOTF_CHANNEL_ID = 133742
+
+    var BOUNDED = false
+
+    var onNewLocation: ((track : Trackpoint) -> Unit)? = null
+
+
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Toast.makeText(this, "Service has been started", Toast.LENGTH_LONG).show()
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
     override fun onCreate() {
-        println("SERVICE HAS BEEN CREATED")
-        startForeground(69420, makeNotification())
+        startForeground(NOTF_CHANNEL_ID, makeNotification())
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Toast.makeText(this, "Service has been destroyed", Toast.LENGTH_LONG).show()
     }
 
     override fun onBind(p0: Intent?): IBinder? {
+        Log.d(TAG, "Service has been binded")
+        BOUNDED = true
         return binder
+    }
+    override fun onUnbind(intent: Intent?): Boolean {
+        Log.d(TAG, "Service has been unbinded")
+        BOUNDED = false
+        return super.onUnbind(intent)
     }
 
     fun initLocManager() {
@@ -64,21 +84,22 @@ class TrackService : Service() {
 
         def.createNotificationChannel(channel)
 
-        val build = Notification.Builder(this, "TrackLocService").setAutoCancel(false)
+        val build = Notification.Builder(this, "TrackLocService")
 
+        build.setAutoCancel(false)
+             .setContentTitle("Runt - Tracking Location")
+             .setContentText("Runt service is running")
 
         return build.build()
     }
 
     fun startTracking() {
-
-        println("STARTING TRACKING")
-
         initLocManager()
         listener = LocListener(LocationManager.GPS_PROVIDER)
 
+        // we'll need to get location updates from the GPS provider, and we must check beforehand
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            locManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 0.5f, listener)
+            locManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 0.2f, listener)
         }
     }
 
@@ -87,6 +108,8 @@ class TrackService : Service() {
 
         var lastLocation : Location
 
+        var sequence = 0
+
         init {
             lastLocation = Location(provider)
         }
@@ -94,9 +117,19 @@ class TrackService : Service() {
         override fun onLocationChanged(location: Location) {
             val lat = location?.latitude
             val lng = location?.longitude
-
             currentLatLng  = LatLng(lat, lng)
+
+            val newTrack = Trackpoint(99, sequence++, lat, lng, -1.0, location.time)
+
+            // trackpoints.add()
+
+            if(BOUNDED) {
+                onNewLocation?.invoke(newTrack)
+            }
+
             Log.d(TAG, "We've found a location: ${currentLatLng}")
+
+
         }
         override fun onStatusChanged(p0: String?, p1: Int, p2: Bundle?) { }
         override fun onProviderEnabled(p0: String?) { }
@@ -106,6 +139,10 @@ class TrackService : Service() {
     inner class OurLocBinder : Binder() {
         fun getService() : TrackService {
             return this@TrackService
+        }
+
+        fun getNewTrackpoints() : ArrayList<Trackpoint> {
+            return trackpoints
         }
     }
 
