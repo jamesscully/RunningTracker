@@ -143,6 +143,8 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
 
         var previous = points[0].elev
 
+        return -1.0
+
         for(x in 1 until points.size) {
             val current = points[x].elev
 
@@ -150,10 +152,12 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
 
             if(difference > 0)
                 gain += difference
+            else
+                gain -= difference
 
         }
 
-        return gain
+
     }
 
     // this function generates the bounds needed to include all trackpoints on the map

@@ -16,6 +16,7 @@ class TripAdapter (private val dataset : ArrayList<Trip>) : RecyclerView.Adapter
 
 
     // found at https://stackoverflow.com/questions/54219825/android-kotlin-how-to-add-click-listener-to-recyclerview-adapter
+    // these essentially handle the callbacks for pressing on things in a ViewHolder like the expand or zoom in on map functionality.
     // kotlin makes somethings harder than java I guess
     var onItemClick: ((pos:Int, view : View) -> Unit)? = null
     var onOpenClick: ((pos:Int, view : View) -> Unit)? = null
@@ -52,7 +53,7 @@ class TripAdapter (private val dataset : ArrayList<Trip>) : RecyclerView.Adapter
         holder.time.text = data.getTimeStamp()
         holder.date.text = data.getStartDate()
         holder.distance.text = data.getDistanceStamp()
-        holder.elevGain.text = data.getElevationGain().toString()
+        holder.elevGain.text = data.getElevationGain().toString().plus("m")
 
         holder.bOpen.setOnClickListener {
             print("WE NEED TO OPEN THIS NOW MR PRESIDENT")

@@ -43,7 +43,6 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFrag : SupportMapFragment = supportFragmentManager.findFragmentById(R.id.viewTripMap) as SupportMapFragment
             mapFrag.getMapAsync(this)
 
-
         // if we're creating, we're likely coming from importing a GPX file
         if(intent.extras?.get("creating") as Boolean) {
             trip = intent.extras?.get("trip") as Trip
@@ -59,13 +58,11 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
         act_trip_elevgain.text = trip.getElevationGain().toString().plus("m")
         act_trip_speed.text = trip.getAverageDistance()
 
-
         for(x in trackpoints) {
             val tv = TrackpointView(this, x)
             tv.setOnClickListener {
                 highlightTrackpoint(x)
             }
-
             act_trip_tracklayout.addView(tv)
         }
     }
@@ -91,7 +88,6 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     fun drawPolyline() {
-
         googleMap.addPolyline(
             getPolyLine(trip.plotLineOptions).color(COLOR_LINE)
         )

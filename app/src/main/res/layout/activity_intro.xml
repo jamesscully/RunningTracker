@@ -6,17 +6,17 @@
     android:layout_height="match_parent"
     tools:context=".activities.IntroActivity">
 
-    <TextView
+    <ImageView
         android:id="@+id/intro_logo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
         android:layout_marginTop="64dp"
-        android:text="Runt"
-        android:textSize="48sp"
-        android:textStyle="bold"
+        android:scaleType="centerInside"
+        android:tint="?android:attr/textColorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/runtlogo" />
 
     <TextView
         android:id="@+id/intro_description"
@@ -25,7 +25,7 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
-        android:text="Welcome to Runt! \n\n In order to use our app, you'll need to accept some permissions which are necessary."
+        android:text="Welcome to Runt! \n\n In order to use our app, you'll need to accept some permissions which are necessary. \n\n\n It should also be noted that we use Google Play Services for Google Maps integration."
         android:textAlignment="center"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -33,8 +33,9 @@
         app:layout_constraintTop_toBottomOf="@+id/intro_logo" />
 
     <TableLayout
+        android:id="@+id/tableLayout"
         android:layout_width="0dp"
-        android:layout_height="300dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
@@ -45,39 +46,66 @@
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
 
             <ImageView
                 android:id="@+id/intro_storageicon"
                 android:layout_width="50dp"
                 android:layout_height="match_parent"
-                app:srcCompat="@drawable/ic_running" />
+                app:srcCompat="@drawable/ic_storage" />
 
             <TextView
                 android:id="@+id/textView2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="TextView" />
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="We require storage access so that we can read imported GPX data from your device."
+                android:textAlignment="textStart" />
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_height="wrap_content">
 
             <ImageView
                 android:id="@+id/intro_locationicon"
                 android:layout_width="50dp"
                 android:layout_height="match_parent"
-                app:srcCompat="@android:drawable/ic_menu_mylocation" />
+                app:srcCompat="@drawable/ic_gps" />
 
             <TextView
                 android:id="@+id/textView3"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="TextView" />
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="We require access to your location to track your movement throughout your run."
+                android:textAlignment="textStart" />
         </TableRow>
 
     </TableLayout>
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:text="If you're okay with these, then hit the accept button to get started."
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tableLayout" />
+
+    <Button
+        android:id="@+id/intro_accept"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/sty_button"
+        android:text="Accept"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView4" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,6 +3,9 @@ package com.scullyapps.mdprunningtracker.activities
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.LayoutInflater
+import androidx.appcompat.widget.Toolbar
+
 import com.scullyapps.mdprunningtracker.R
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -17,11 +20,15 @@ class MainActivity : AppCompatActivity() {
 
         setupButtons()
 
-        startActivity(Intent(this, ListTripsActivity::class.java))
 
     }
 
     fun setupButtons() {
+
+        main_btn_startstop.setOnClickListener {
+            startActivity(Intent(this, TrackActivity::class.java))
+        }
+
         main_btn_pasttrips.setOnClickListener {
             startActivity(Intent(this, ListTripsActivity::class.java))
         }
