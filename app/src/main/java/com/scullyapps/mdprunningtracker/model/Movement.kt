@@ -34,8 +34,6 @@ class Movement(tkpts : ArrayList<Trackpoint>) : Parcelable {
         return totalDistance
     }
 
-
-
     // this function only returns the path to be placed on the map;
     // we define Color, Width, etc elsewhere.
     fun getPlotLine() : PolylineOptions {
@@ -57,26 +55,29 @@ class Movement(tkpts : ArrayList<Trackpoint>) : Parcelable {
     }
 
 
+
+    /*\
+    ///  Parcelable Code
+    \*/
+
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeTypedList(trackpoints)
     }
 
-    override fun describeContents(): Int {
-        return 0
-    }
-
     companion object CREATOR : Parcelable.Creator<Movement> {
+
         override fun createFromParcel(source: Parcel): Movement {
             val trk = ArrayList<Trackpoint>()
             source.readTypedList(trk, Trackpoint.CREATOR)
             return Movement(trk)
         }
-
         override fun newArray(size: Int): Array<Movement?> {
             return arrayOfNulls(size)
         }
 
     }
+
+    override fun describeContents(): Int = 0
 
 
 }

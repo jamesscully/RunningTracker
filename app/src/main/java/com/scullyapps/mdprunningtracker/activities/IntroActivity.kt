@@ -35,14 +35,6 @@ class IntroActivity : AppCompatActivity() {
             launchMain()
         }
 
-
-
-        if(Build.VERSION.SDK_INT < 23) {
-
-        }
-
-
-
         intro_accept.setOnClickListener {
             ActivityCompat.requestPermissions(this, PERMISSIONS_NEEDED, 1337)
         }

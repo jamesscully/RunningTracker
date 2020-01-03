@@ -3,38 +3,30 @@ package com.scullyapps.mdprunningtracker.model
 import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
+import android.util.JsonWriter
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
 import com.scullyapps.mdprunningtracker.database.Contract
+import org.json.JSONArray
+import org.json.JSONObject
+import org.json.JSONStringer
+import java.io.OutputStream
+import java.io.OutputStreamWriter
 import java.text.DateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.round
 
-data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
+data class Trip(val id: Int, var name: String, var notes: String) : Parcelable {
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeInt(id)
-        dest.writeString(name)
-        dest.writeString(notes)
-    }
 
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    companion object CREATOR : Parcelable.Creator<Trip> {
-        override fun createFromParcel(source: Parcel): Trip {
-            return Trip(source.readInt(), source.readString()!!, source.readString()!!)
-        }
-
-        override fun newArray(size: Int): Array<Trip?> {
-            return arrayOfNulls(size)
-        }
-
-    }
 
     lateinit var movement : Movement
+
+    var rating   = 0
+    var comments = ArrayList<Comment>()
+
+
 
     // getters to make things look nicer
     val totalUnixTime : Long
@@ -48,27 +40,15 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
     fun getTimeStamp() : String {
         val elapsed : Long = totalUnixTime // ie 40
 
-        // we can use Calendar to get our h/m/s in the format we want.
-        // in this case, we want e.g. 1h2m30s for aesthetics
-        val time = Calendar.getInstance()
-
-        time.clear()
-
-        // this will adjust other values if > 60
-        time.timeInMillis = elapsed * 1000L
-
-//        val hours = time.get(Calendar.HOUR)
-//        val mins  = time.get(Calendar.MINUTE)
-//        val secs  = time.get(Calendar.SECOND)
-
-        var temp : Long = elapsed
 
         // TODO check this for errors;
 
+        var temp : Long = elapsed
+
         val hours = temp / (60 * 60)
-        temp %= (60 * 60)
+            temp %= (60 * 60)
         val mins  = temp / 60
-        temp %= 60
+            temp %= 60
         val secs  = temp
 
         var out = ""
@@ -84,18 +64,8 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
     // this gets our start date, which will be used for displaying when
     // each run took place independent of the name
     fun getStartDate() : String {
-        val firstPoint = movement.trackpoints[0].time
-
-        // we'll need to get and clear our calendar
-//        val time = Calendar.getInstance()
-//        time.clear()
-//
-//        time.timeInMillis = firstPoint * 1000L
-//
-//        val date : Date = time.time
-
         // according to Android Studio, this will give the local time format for each country.
-        return DateFormat.getDateInstance().format(Date(firstPoint * 1000L))
+        return DateFormat.getDateInstance().format(Date(movement.trackpoints[0].time * 1000L))
     }
 
     // this function generates the stamp for distance, i.e. 1.31km or 300m
@@ -137,27 +107,7 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
 
     // not sure this will be implemented; elevation gain is apparently very tricky
     fun getElevationGain() : Double {
-
-        var gain = 0.0
-        val points = movement.trackpoints
-
-        var previous = points[0].elev
-
         return -1.0
-
-        for(x in 1 until points.size) {
-            val current = points[x].elev
-
-            val difference = current - previous
-
-            if(difference > 0)
-                gain += difference
-            else
-                gain -= difference
-
-        }
-
-
     }
 
     // this function generates the bounds needed to include all trackpoints on the map
@@ -173,7 +123,6 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
 
 
     fun getMovement(context: Context) {
-
         val projection = arrayOf(
             Contract.MOVEMENT.T_ID,
             Contract.MOVEMENT.SEQ,
@@ -190,13 +139,82 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable{
 
         if(cur != null) {
             cur.moveToFirst()
-
             while(!cur.isAfterLast) {
                 tracks.add(Trackpoint.fromCursor(cur))
                 cur.moveToNext()
             }
         }
-
         movement = Movement(tracks)
     }
+
+    /*\
+    ///  These two functions read and write the extras from the notes column; rating and comments.
+    \*/
+
+    fun writeToJson() : String {
+        val outJSON      = JSONObject()
+        val commentArray = JSONArray()
+
+        outJSON.put("rating", rating)
+
+        for(x in comments) {
+            commentArray.put(x.seq, x.comment)
+        }
+
+        outJSON.put("comments", commentArray)
+
+        return outJSON.toString()
+    }
+
+    fun readFromJson(json : String) {
+        val extras = JSONObject(json)
+
+        rating = extras.get("rating") as Int
+
+        val coms = extras.get("comments") as JSONArray
+
+        // for all comments in the array, we'll add them to our local array
+        for(x in 0 until coms.length()) {
+            val comment = comments.get(x) as String
+
+            // the above will convert null to a string, which we don't want!
+            if(comment == "null")
+                continue
+
+                          comments.add(Comment(x, comment))
+        }
+
+    }
+
+
+
+    /*\
+    ///  Parcelable Code
+    \*/
+
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeInt(id)
+        dest.writeString(name)
+        dest.writeString(notes)
+    }
+
+    override fun describeContents(): Int = 0
+
+
+    companion object CREATOR : Parcelable.Creator<Trip> {
+        override fun createFromParcel(source: Parcel): Trip {
+            return Trip(source.readInt(), source.readString()!!, source.readString()!!)
+        }
+
+        override fun newArray(size: Int): Array<Trip?> {
+            return arrayOfNulls(size)
+        }
+
+    }
+
+    override fun toString(): String {
+        return "Trip(id=$id, name='$name', notes='$notes', movement=$movement, rating=$rating, comments=$comments)"
+    }
+
+
 }

@@ -4,45 +4,78 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/frameLayout"
     android:layout_width="match_parent"
-    android:layout_height="75dp"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
     android:background="@color/viewBackground">
 
-    <TextView
-        android:id="@+id/view_track_seq"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:text="#1"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/view_track_seq"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/view_track_coords"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="-50, 50"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:layout_height="75dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/view_track_timestamp"
+            <TextView
+                android:id="@+id/view_track_seq"
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="24dp"
+                android:gravity="center"
+                android:text="#1"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/view_track_clayout"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/view_track_coords"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="-50, 50"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/view_track_timestamp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="12:32:12pm" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/view_track_btncomment"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="right|center_vertical"
+                android:layout_marginRight="50dp"
+                app:srcCompat="@drawable/ic_comment" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/view_track_comment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="12:32:12pm" />
+            android:background="@android:color/darker_gray"
+            android:padding="8dp"
+            android:visibility="gone"
+            tools:text="Comment goes here if there is one, here's a long text to see what the comment should actually look like. It's a pretty long message, mind you, we might not have enough space in the variable!"
+            tools:visibility="visible" />
+
     </LinearLayout>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

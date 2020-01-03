@@ -11,13 +11,8 @@ import android.location.LocationManager
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
-import android.widget.Toast
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import android.util.Log
-import android.view.View
 import androidx.core.content.ContextCompat
 import com.scullyapps.mdprunningtracker.model.Trackpoint
 
@@ -33,22 +28,31 @@ class TrackService : Service() {
     private val TAG: String = "TrackService";
 
     lateinit var currentLatLng : LatLng
+
     var locManager : LocationManager? = null
     var listener   : LocListener? = null
 
-    var trackpoints = ArrayList<Trackpoint>()
+    var trackpoints_buffer = ArrayList<Trackpoint>()
 
     val binder = OurLocBinder()
 
-    val NOTF_CHANNEL_ID = 133742
 
+    // whether we're bounded; so we can buffer data
     var BOUNDED = false
 
+
+    // callback for when we receive an update; this will act upon in TrackActivity
     var onNewLocation: ((track : Trackpoint) -> Unit)? = null
 
 
+    // constants
+    val NOTF_CHANNEL_ID = 133742
+    val LOCATION_UPDATE_RATE = 10000L
+    val LOCATION_RANGE       = 0.2f
+
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
         return START_STICKY
     }
 
@@ -57,6 +61,7 @@ class TrackService : Service() {
     }
 
     override fun onDestroy() {
+        Log.d(TAG, "We're being destroyed!")
         super.onDestroy()
     }
 
@@ -99,12 +104,14 @@ class TrackService : Service() {
 
         // we'll need to get location updates from the GPS provider, and we must check beforehand
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            locManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 0.2f, listener)
+            locManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_UPDATE_RATE, LOCATION_RANGE, listener)
         }
     }
 
 
     inner class LocListener(provider : String) : LocationListener {
+
+        val TAG = "LocListener"
 
         var lastLocation : Location
 
@@ -115,8 +122,8 @@ class TrackService : Service() {
         }
 
         override fun onLocationChanged(location: Location) {
-            val lat = location?.latitude
-            val lng = location?.longitude
+            val lat = location.latitude
+            val lng = location.longitude
             currentLatLng  = LatLng(lat, lng)
 
             val newTrack = Trackpoint(99, sequence++, lat, lng, -1.0, location.time)
@@ -125,15 +132,17 @@ class TrackService : Service() {
 
             if(BOUNDED) {
                 onNewLocation?.invoke(newTrack)
+            } else {
+                trackpoints_buffer.add(newTrack)
             }
 
             Log.d(TAG, "We've found a location: ${currentLatLng}")
 
 
         }
-        override fun onStatusChanged(p0: String?, p1: Int, p2: Bundle?) { }
-        override fun onProviderEnabled(p0: String?) { }
-        override fun onProviderDisabled(p0: String?) { }
+        override fun onStatusChanged(p0: String?, p1: Int, p2: Bundle?) { Log.d(TAG, "onStatusChanged") }
+        override fun onProviderEnabled(p0: String?) { Log.d(TAG, "onProviderEnabled") }
+        override fun onProviderDisabled(p0: String?) { Log.e(TAG, "onProviderDisabled") }
     }
 
     inner class OurLocBinder : Binder() {
@@ -141,8 +150,16 @@ class TrackService : Service() {
             return this@TrackService
         }
 
+        fun haveNewTrackpoints() : Boolean {
+            return (trackpoints_buffer.size > 0)
+        }
+
         fun getNewTrackpoints() : ArrayList<Trackpoint> {
-            return trackpoints
+            val ret = trackpoints_buffer
+
+            trackpoints_buffer.clear()
+
+            return ret
         }
     }
 

@@ -13,6 +13,13 @@ data class Trackpoint(val tID  : Int,
                       var elev : Double = -1.0,
                       var time : Long = 0) : Parcelable {
 
+    val latLng = LatLng(lat, lng)
+
+
+    /*\
+    ///  Parcelable Code
+    \*/
+
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeInt(tID)
         dest.writeInt(seq)
@@ -22,11 +29,7 @@ data class Trackpoint(val tID  : Int,
         dest.writeLong(time)
     }
 
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    val latLng = LatLng(lat, lng)
+    override fun describeContents(): Int = 0
 
     companion object CREATOR : Parcelable.Creator<Trackpoint> {
         override fun createFromParcel(source: Parcel): Trackpoint {

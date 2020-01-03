@@ -18,6 +18,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.maps.android.SphericalUtil
 import com.scullyapps.mdprunningtracker.R
 import com.scullyapps.mdprunningtracker.model.Trackpoint
 import com.scullyapps.mdprunningtracker.services.TrackService
@@ -43,6 +44,9 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
     var servConnection : TrackConnection = TrackConnection()
 
     lateinit var START_TRACKPOINT : Trackpoint
+    lateinit var LAST_TRACKPOINT  : Trackpoint
+
+    var trackpoints = ArrayList<Trackpoint>()
 
     override fun onMapReady(map: GoogleMap?) {
         if(map != null) {
@@ -71,13 +75,7 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
             trackService = (service as TrackService.OurLocBinder).getService()
             binder = service
             trackService?.startTracking()
-
-            // this is our callback for when we're connected; we can receive each new update from the Service.
-            trackService?.onNewLocation = {track ->
-                googleMap.addCircle(
-                    CircleOptions().center(track.latLng).fillColor(Color.RED).radius(50.0)
-                )
-            }
+            onResume()
         }
     }
 
@@ -119,17 +117,60 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
         startAndBind()
 
         if(binder != null) {
-            plot(binder?.getNewTrackpoints()!!)
+            // if we have new trackpoints since being unbound, then we'll need to add them
+            if(binder?.haveNewTrackpoints()!!) {
+                val new = binder?.getNewTrackpoints()!!
+                trackpoints.addAll(new)
+            }
+
+            if(trackpoints.size > 0) {
+                START_TRACKPOINT = trackpoints[0]
+                LAST_TRACKPOINT  = trackpoints.last()
+            }
+
+            // since we've now caught up, we should plot the existing line again + new ones
+            plot()
+
+            trackService?.onNewLocation = { track ->
+                trackpoints.add(track)
+                plotNew(track)
+                calculateStats()
+            }
         }
     }
 
-    fun plot(trackpoints : ArrayList<Trackpoint>) {
+    fun calculateStats() {
+        track_distance.text = SphericalUtil.computeDistanceBetween(START_TRACKPOINT.latLng, LAST_TRACKPOINT.latLng).toString().plus("m")
+    }
+
+    fun plot() {
         val opts = PolylineOptions().color(Color.MAGENTA)
 
         for(x in trackpoints) {
             opts.add(x.latLng)
         }
+
         googleMap.addPolyline(opts)
+    }
+
+    // we'll just plot the new one, instead of re-drawing the plotline for each trackpoint added
+    fun plotNew(track : Trackpoint) {
+
+        // if we haven't initialized LAST yet, then this should be last.
+        if(!::LAST_TRACKPOINT.isInitialized) {
+            START_TRACKPOINT = track
+            LAST_TRACKPOINT = track
+        }
+
+        val opts = PolylineOptions().color(Color.MAGENTA)
+
+        // we'll need to add from our last trackpoint to the new one, then reset the last trackpoint
+        opts.add(LAST_TRACKPOINT.latLng)
+        opts.add(track.latLng)
+
+        googleMap.addPolyline(opts)
+
+        LAST_TRACKPOINT = track
     }
 
 

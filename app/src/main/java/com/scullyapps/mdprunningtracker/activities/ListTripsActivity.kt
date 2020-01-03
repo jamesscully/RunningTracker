@@ -31,7 +31,7 @@ class ListTripsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(map: GoogleMap?) {
         if(map != null) {
             googleMap = map
-            map?.moveCamera(CameraUpdateFactory.newLatLng(LatLng(51.5074, 0.1278)))
+            map.moveCamera(CameraUpdateFactory.newLatLng(LatLng(51.5074, 0.1278)))
         }
     }
 
