@@ -77,6 +77,17 @@ public class RunContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+
+        switch (uriMatcher.match(uri)) {
+            case CODE_TRIP:
+                db.insert("Trip", null, values);
+                break;
+
+            case CODE_MOVEMENT:
+                db.insert("Movement", null, values);
+                break;
+        }
+
         return null;
     }
 
@@ -87,6 +98,11 @@ public class RunContentProvider extends ContentProvider {
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
+
+        if(uriMatcher.match(uri) == CODE_TRIP) {
+            db.update("Trip", values, selection, selectionArgs);
+        }
+
         return 0;
     }
 }

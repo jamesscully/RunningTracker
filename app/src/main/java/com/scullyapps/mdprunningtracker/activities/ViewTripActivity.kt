@@ -1,5 +1,6 @@
 package com.scullyapps.mdprunningtracker.activities
 
+import android.content.ContentValues
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -8,12 +9,15 @@ import android.text.TextWatcher
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
+import androidx.core.view.children
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.scullyapps.mdprunningtracker.R
+import com.scullyapps.mdprunningtracker.database.Contract
+import com.scullyapps.mdprunningtracker.model.Comment
 import com.scullyapps.mdprunningtracker.model.Movement
 import com.scullyapps.mdprunningtracker.model.Trackpoint
 import com.scullyapps.mdprunningtracker.model.Trip
@@ -26,15 +30,14 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
     lateinit var trip : Trip
 
 
-    // we'll use a hashmap, as this does not allow
-    // for duplicate keys, i.e. if seq is changed, then the appropriate entry will too.
-    var commentMap = HashMap<Int, String>()
 
     val COLOR_LINE = Color.rgb(0, 32, 138)
     val COLOR_DOT  = Color.rgb(13, 70, 160)
     val COLOR_MARK = Color.rgb(84, 113, 210)
 
     val trackpoints get() = trip.movement.trackpoints
+
+    val commentMap get() = trip.comments
 
     override fun onMapReady(map: GoogleMap?) {
         if(map != null) {
@@ -43,6 +46,8 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
             drawPolyline()
         }
     }
+
+    var CREATING : Boolean = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,8 +60,10 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
         // in either following case, the trip must be defined
         trip = intent.extras?.get("trip") as Trip
 
-        // if we're creating, we're likely coming from importing a GPX file
-        if(intent.extras?.get("creating") as Boolean) {
+        CREATING = intent.extras?.get("creating") as Boolean
+
+        // if we're creating, we're likely coming from importing a GPX file, and thus we'll need to get movement from intent
+        if(CREATING) {
             trip.movement = intent.extras?.get("movement") as Movement
         } else {
             trip.getMovement(this)
@@ -69,6 +76,11 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
         act_trip_elevgain.text  = trip.getElevationGain().toString().plus("m")
         act_trip_speed.text     = trip.getAverageDistance()
 
+        act_trip_rating.rating = trip.rating.toFloat()
+
+
+
+
         for(x in trackpoints) {
             val tv = TrackpointView(this, x)
             tv.setOnClickListener {
@@ -78,7 +90,11 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
             // after the text has changed, we'll put the comments into a map.
             tv.setCommentListener(object : TextWatcher {
                 override fun afterTextChanged(p0: Editable) {
-                    commentMap.put(x.seq, p0.toString())
+
+                    if(p0.toString() != "") {
+                        commentMap.put(x.seq, p0.toString())
+                        act_trip_save.visibility = View.VISIBLE
+                    }
                 }
                 override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) { }
                 override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) { }
@@ -86,13 +102,18 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
             act_trip_tracklayout.addView(tv)
         }
 
-        setupListeners()
+        commentMap.forEach {seq, comment ->
+            val children = act_trip_tracklayout.children
+            val tv = children.elementAt(seq) as TrackpointView
 
-        act_trip_time.setOnClickListener {
-            println(trip.toString())
-            println(commentMap.toString())
+            tv.setComment(comment)
         }
 
+
+
+
+
+        setupListeners()
     }
 
     fun setupListeners() {
@@ -105,11 +126,54 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
         act_trip_name.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(p0: Editable?) {
                 trip.name = p0.toString()
+                act_trip_save.visibility = View.VISIBLE
             }
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
         })
+
+        act_trip_time.setOnClickListener {
+            println(trip.toString())
+            println(commentMap.toString())
+        }
+
+        act_trip_save.setOnClickListener {
+            save()
+        }
     }
+
+
+    fun save() {
+        val cv = ContentValues()
+
+        cv.put("name",  act_trip_name.text.toString())
+        cv.put("notes", trip.writeToJson())
+
+        if(CREATING) {
+            contentResolver.insert(Contract.ALL_TRIPS, cv)
+
+            for(x in trackpoints) {
+                val tkCV = ContentValues()
+
+                tkCV.put("tID", trip.id)
+                tkCV.put("seq", x.seq)
+                tkCV.put("lat", x.lat)
+                tkCV.put("lng", x.lng)
+                tkCV.put("elev", x.elev)
+                tkCV.put("time", x.time)
+
+                println(tkCV)
+
+                contentResolver.insert(Contract.ALL_MOVEMENT, tkCV)
+            }
+
+
+            CREATING = false
+        } else {
+            contentResolver.update(Contract.ALL_TRIPS, cv, "_id=?", arrayOf(trip.id.toString()))
+        }
+    }
+
 
 
     fun highlightTrackpoint(track : Trackpoint) {

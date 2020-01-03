@@ -4,10 +4,12 @@ import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.JsonWriter
+import com.google.android.gms.common.util.JsonUtils
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
 import com.scullyapps.mdprunningtracker.database.Contract
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import org.json.JSONStringer
 import java.io.OutputStream
@@ -24,7 +26,7 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable {
     lateinit var movement : Movement
 
     var rating   = 0
-    var comments = ArrayList<Comment>()
+    var comments = HashMap<Int, String>()
 
 
 
@@ -34,6 +36,11 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable {
 
     val plotLineOptions : PolylineOptions
         get() = movement.getPlotLine()
+
+
+    init {
+        readFromJson()
+    }
 
 
     // self explanatory
@@ -157,8 +164,8 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable {
 
         outJSON.put("rating", rating)
 
-        for(x in comments) {
-            commentArray.put(x.seq, x.comment)
+        comments.forEach {seq, comment ->
+            commentArray.put(seq, comment)
         }
 
         outJSON.put("comments", commentArray)
@@ -166,24 +173,35 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable {
         return outJSON.toString()
     }
 
-    fun readFromJson(json : String) {
-        val extras = JSONObject(json)
+    fun readFromJson() {
 
-        rating = extras.get("rating") as Int
+        try {
 
-        val coms = extras.get("comments") as JSONArray
+            val extras = JSONObject(notes)
 
-        // for all comments in the array, we'll add them to our local array
-        for(x in 0 until coms.length()) {
-            val comment = comments.get(x) as String
+            rating = extras.get("rating") as Int
 
-            // the above will convert null to a string, which we don't want!
-            if(comment == "null")
-                continue
+            val coms = extras.get("comments") as JSONArray
 
-                          comments.add(Comment(x, comment))
+            // for all comments in the array, we'll add them to our local array
+            for (x in 0 until coms.length()) {
+
+
+
+                if (coms.get(x).toString() == "null")
+                    continue
+
+                val comment = coms.get(x) as String
+
+                // the above will convert null to a string, which we don't want!
+                if (comment == "null" || comment == null)
+                    continue
+
+                comments.put(x, comment)
+            }
+        } catch (e : JSONException) {
+            System.err.println("JSON ${notes} is not valid, ignoring...")
         }
-
     }
 
 

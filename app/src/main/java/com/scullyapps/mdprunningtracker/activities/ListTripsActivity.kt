@@ -37,12 +37,10 @@ class ListTripsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     // todo implement permissions prompt
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_list_trips)
+    override fun onResume() {
+        super.onResume()
 
-        val mapFrag : SupportMapFragment = supportFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment
-        mapFrag.getMapAsync(this)
+        trips.clear()
 
         val projection = arrayOf( Contract.TRIP._ID, Contract.TRIP.NAME, Contract.TRIP.NOTES )
 
@@ -61,7 +59,18 @@ class ListTripsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
             c.close()
         }
+
         setupRecycler()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_list_trips)
+
+        val mapFrag : SupportMapFragment = supportFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment
+        mapFrag.getMapAsync(this)
+
+
 
         button.setOnClickListener {
             val intent = Intent()

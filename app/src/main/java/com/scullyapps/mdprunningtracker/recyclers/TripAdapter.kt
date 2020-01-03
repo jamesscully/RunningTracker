@@ -56,7 +56,6 @@ class TripAdapter (private val dataset : ArrayList<Trip>) : RecyclerView.Adapter
         holder.elevGain.text = data.getElevationGain().toString().plus("m")
 
         holder.bOpen.setOnClickListener {
-            print("WE NEED TO OPEN THIS NOW MR PRESIDENT")
             onOpenClick?.invoke(position, it)
         }
 

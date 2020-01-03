@@ -48,6 +48,11 @@ class TrackpointView(context: Context, track : Trackpoint) : ConstraintLayout(co
 
     }
 
+    fun setComment(comment : String) {
+        view_track_comment.setText(comment)
+        view_track_comment.visibility = View.VISIBLE
+    }
+
     fun setCommentListener(watcher: TextWatcher) {
         view_track_comment.addTextChangedListener(watcher)
     }
