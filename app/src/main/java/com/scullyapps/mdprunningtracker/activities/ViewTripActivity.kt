@@ -10,12 +10,16 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import androidx.core.view.children
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.scullyapps.mdprunningtracker.R
+import com.scullyapps.mdprunningtracker.adapters.TrackAdapter
+import com.scullyapps.mdprunningtracker.adapters.TripAdapter
 import com.scullyapps.mdprunningtracker.database.Contract
 import com.scullyapps.mdprunningtracker.model.Comment
 import com.scullyapps.mdprunningtracker.model.Movement
@@ -35,6 +39,12 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
     val COLOR_DOT  = Color.rgb(13, 70, 160)
     val COLOR_MARK = Color.rgb(84, 113, 210)
 
+
+    private lateinit var recycler : RecyclerView
+    private lateinit var mAdapter  : TrackAdapter
+    private lateinit var mManager  : RecyclerView.LayoutManager
+
+
     val trackpoints get() = trip.movement.trackpoints
 
     val commentMap get() = trip.comments
@@ -48,7 +58,6 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     var CREATING : Boolean = false
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,50 +87,40 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
 
         act_trip_rating.rating = trip.rating.toFloat()
 
-
-
-
-        for(x in trackpoints) {
-            val tv = TrackpointView(this, x)
-            tv.setOnClickListener {
-                highlightTrackpoint(x)
-            }
-
-            // after the text has changed, we'll put the comments into a map.
-            tv.setCommentListener(object : TextWatcher {
-                override fun afterTextChanged(p0: Editable) {
-
-                    if(p0.toString() != "") {
-                        commentMap.put(x.seq, p0.toString())
-                        act_trip_save.visibility = View.VISIBLE
-                    }
-                }
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) { }
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) { }
-            })
-            act_trip_tracklayout.addView(tv)
-        }
-
-        commentMap.forEach {seq, comment ->
-            val children = act_trip_tracklayout.children
-            val tv = children.elementAt(seq) as TrackpointView
-
-            tv.setComment(comment)
-        }
-
-
-
-
-
+        setupRecycler()
         setupListeners()
+    }
+
+    fun setupRecycler() {
+        mManager = LinearLayoutManager(this)
+
+
+        // our adapter is responsible for creating views based on data,
+        // thus it'll need both trackpoints and comments
+        mAdapter = TrackAdapter(trackpoints, commentMap)
+
+        recycler = act_trip_tracklayout.apply {
+            setHasFixedSize(true)
+            layoutManager = mManager
+            adapter = mAdapter
+        }
+
+        mAdapter.onItemClick = {pos ->
+            highlightTrackpoint(trackpoints[pos])
+        }
+
+        // when the user has input a comment, we put it in the map
+        mAdapter.onComment = {seq, comment ->
+            commentMap.put(seq, comment)
+        }
+
     }
 
     fun setupListeners() {
         act_trip_rating.setOnRatingBarChangeListener { ratingBar, fl, b ->
-            // we can change this to an Int as the ratingbar is limited to 1 star increments.
+            // we can safely change this to an Int as the ratingbar is limited to 1 star increments.
             trip.rating = fl.toInt()
         }
-
 
         act_trip_name.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(p0: Editable?) {
@@ -149,6 +148,8 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
         cv.put("name",  act_trip_name.text.toString())
         cv.put("notes", trip.writeToJson())
 
+        println("Saving data: \n ${trip.writeToJson()}")
+
         if(CREATING) {
             contentResolver.insert(Contract.ALL_TRIPS, cv)
 
@@ -167,8 +168,8 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
                 contentResolver.insert(Contract.ALL_MOVEMENT, tkCV)
             }
 
-
             CREATING = false
+
         } else {
             contentResolver.update(Contract.ALL_TRIPS, cv, "_id=?", arrayOf(trip.id.toString()))
         }

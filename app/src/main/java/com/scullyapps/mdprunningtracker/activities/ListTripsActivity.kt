@@ -15,7 +15,7 @@ import com.scullyapps.mdprunningtracker.R
 import com.scullyapps.mdprunningtracker.database.Contract
 import com.scullyapps.mdprunningtracker.gpx.GPX
 import com.scullyapps.mdprunningtracker.model.Trip
-import com.scullyapps.mdprunningtracker.recyclers.TripAdapter
+import com.scullyapps.mdprunningtracker.adapters.TripAdapter
 import com.scullyapps.mdprunningtracker.database.DBHelper
 
 
@@ -55,6 +55,7 @@ class ListTripsActivity : AppCompatActivity(), OnMapReadyCallback {
                 trip.getMovement(this)
 
                 trips.add(trip)
+
                 c.moveToNext()
             }
             c.close()

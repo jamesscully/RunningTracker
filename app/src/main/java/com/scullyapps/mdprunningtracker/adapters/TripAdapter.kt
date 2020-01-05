@@ -1,4 +1,4 @@
-package com.scullyapps.mdprunningtracker.recyclers
+package com.scullyapps.mdprunningtracker.adapters
 
 import android.view.LayoutInflater
 import android.view.View

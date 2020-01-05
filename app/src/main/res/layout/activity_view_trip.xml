@@ -105,11 +105,11 @@
                     tools:text="50m/h" />
             </LinearLayout>
 
-            <LinearLayout
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/act_trip_tracklayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"></LinearLayout>
+                android:orientation="vertical"></androidx.recyclerview.widget.RecyclerView>
 
         </LinearLayout>
 
