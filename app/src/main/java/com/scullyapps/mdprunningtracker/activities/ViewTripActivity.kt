@@ -155,10 +155,10 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
             for(x in trackpoints) {
                 val tkCV = ContentValues()
 
-                tkCV.put("tID", trip.id)
-                tkCV.put("seq", x.seq)
-                tkCV.put("lat", x.lat)
-                tkCV.put("lng", x.lng)
+                tkCV.put("tID",  trip.id)
+                tkCV.put("seq",  x.seq)
+                tkCV.put("lat",  x.lat)
+                tkCV.put("lng",  x.lng)
                 tkCV.put("elev", x.elev)
                 tkCV.put("time", x.time)
 
