@@ -61,7 +61,7 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
 
             val width = resources.displayMetrics.widthPixels
             val height = resources.displayMetrics.heightPixels
-            val padding = (width * 0.12).toInt() // offset from edges of the map 12% of screen
+            val padding = (width * 0.12).toInt()
 
             googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(trip.getLatLngBounds(), width, height, padding))
             drawPolyline()

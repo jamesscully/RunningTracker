@@ -50,6 +50,9 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
 
     var trackpoints = ArrayList<Trackpoint>()
 
+    var startTime : Long = 0
+    var runTime   : Long = 0
+
     override fun onMapReady(map: GoogleMap?) {
         if(map != null) {
             googleMap = map
@@ -77,6 +80,9 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
 
         Log.d(TAG, "onCreate")
 
+        val int = Intent(this.application, TrackService::class.java)
+        startService(int)
+
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         val mapFrag : SupportMapFragment = supportFragmentManager.findFragmentById(R.id.trackTripMap) as SupportMapFragment
@@ -88,6 +94,7 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
             if(btn.text == "Start") {
                 track_toggle.text = "Stop"
                 trackService?.startTracking()
+                startTime = System.currentTimeMillis() / 1000L
             } else {
                 track_toggle.text = "Start"
                 stopAndDestroy()
@@ -103,7 +110,6 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
 
     fun startAndBind() {
         val int = Intent(this.application, TrackService::class.java)
-        this.application.startService(int)
         this.application.bindService(int, servConnection, Context.BIND_AUTO_CREATE)
     }
 
@@ -113,6 +119,7 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
 
     override fun onPause() {
         super.onPause()
+        trackService?.startForeground()
         unbind()
     }
 
@@ -122,9 +129,17 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
         startAndBind()
 
         if(binder != null) {
+
+            trackService?.removeForeground()
+
+            println("Binder = $binder")
+
             // if we have new trackpoints since being unbound, then we'll need to add them
             if(binder?.haveNewTrackpoints()!!) {
                 val new = binder?.getNewTrackpoints()!!
+
+                println("Received trackpoints: $new")
+
                 trackpoints.addAll(new)
             }
 
@@ -167,13 +182,17 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
             LAST_TRACKPOINT = track
         } else {
             distanceTravelled += SphericalUtil.computeDistanceBetween(LAST_TRACKPOINT.latLng, track.latLng)
-            round(distanceTravelled)
 
-
-
-            track_distance.text = distanceTravelled.toString().plus("m")
+            track_distance.text = String.format("%.2fm", distanceTravelled)
         }
 
+        track_time.text = getTimeStamp()
+        track_speed.text = getAverageDistance()
+
+
+        googleMap.addCircle(
+            CircleOptions().radius(1.0).fillColor(Color.RED).center(track.latLng)
+        )
 
 
         val opts = PolylineOptions().color(Color.MAGENTA)
@@ -202,17 +221,18 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
         )
     }
 
+
+
     fun highlightTrackpoint(track : Trackpoint) {
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(track.latLng, 17.5f))
     }
 
-    fun getTimeStamp(start : Long, end : Long) : String {
-        val elapsed : Long =  start - end
-
+    fun getTimeStamp() : String {
+        runTime = System.currentTimeMillis() / 1000L - startTime
 
         // TODO check this for errors;
 
-        var temp : Long = elapsed
+        var temp : Long = runTime
 
         val hours = temp / (60 * 60)
         temp %= (60 * 60)
@@ -229,5 +249,39 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
 
         return out
     }
+
+    fun getAverageDistance() : String {
+        val distance = distanceTravelled
+        val time = runTime
+
+        // avoid dividing by zero in the case of an error
+        if(distance == 0.0 || time == 0L)
+            return ""
+
+        // since we're using seconds, and we want 1337m(etres) / min, we multiply the distance by 60
+        // else, time / 60 could result in a float
+        var average = (distance * 60) / time
+
+        return (getDistanceStamp(average) + " / min")
+    }
+
+    fun getDistanceStamp(dist : Double = -1.0) : String {
+
+        var d : Double
+
+        if(dist == -1.0)
+            d = distanceTravelled
+        else
+            d = dist
+
+        val km = d / 1000
+
+        // km or m
+        if(d > 1000)
+            return String.format("%.2fkm", km)
+        else
+            return String.format("%.2fm", d)
+    }
+
 }
 

@@ -62,7 +62,6 @@ class TrackService : Service() {
 
     override fun onCreate() {
         makeNotification()
-        startForeground(NOTF_CHANNEL_ID, notification)
     }
 
     override fun onDestroy() {
@@ -115,6 +114,15 @@ class TrackService : Service() {
         }
     }
 
+    fun startForeground() {
+        startForeground(NOTF_CHANNEL_ID, notification)
+    }
+
+    fun removeForeground() {
+        BOUNDED = true
+        stopForeground(true)
+    }
+
     fun stop() {
         Log.d(TAG, "Stopping our service")
         notificationManager.cancelAll()
@@ -138,6 +146,7 @@ class TrackService : Service() {
         override fun onLocationChanged(location: Location) {
             val lat = location.latitude
             val lng = location.longitude
+
             currentLatLng  = LatLng(lat, lng)
 
             val newTrack = Trackpoint(99, sequence++, lat, lng, -1.0, location.time)
@@ -145,13 +154,14 @@ class TrackService : Service() {
             if(BOUNDED) {
                 onNewLocation?.invoke(newTrack)
             } else {
+                println("Adding new track to buffer $newTrack")
                 trackpoints_buffer.add(newTrack)
             }
 
             Log.d(TAG, "We've found a location: ${currentLatLng}")
         }
         override fun onStatusChanged(p0: String?, p1: Int, p2: Bundle?) { Log.d(TAG, "onStatusChanged") }
-        override fun onProviderEnabled(p0: String?) { Log.d(TAG, "onProviderEnabled") }
+        override fun onProviderEnabled(p0: String?)  { Log.d(TAG, "onProviderEnabled") }
         override fun onProviderDisabled(p0: String?) { Log.e(TAG, "onProviderDisabled") }
     }
 
@@ -165,8 +175,10 @@ class TrackService : Service() {
         }
 
         fun getNewTrackpoints() : ArrayList<Trackpoint> {
-            val ret = trackpoints_buffer
+            val ret = ArrayList<Trackpoint>(trackpoints_buffer)
+            println("Sending trackpoints: $ret ")
             trackpoints_buffer.clear()
+            println("After clear: trackpoints: $ret ")
             return ret
         }
     }
