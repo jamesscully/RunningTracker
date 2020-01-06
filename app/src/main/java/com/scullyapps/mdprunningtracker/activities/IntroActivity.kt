@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.SupportMapFragment
@@ -27,6 +28,9 @@ class IntroActivity : AppCompatActivity() {
         setContentView(R.layout.activity_intro)
 
         supportActionBar?.hide()
+
+        // force dark mode
+        //AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 
 
         // if we've already got our permissions, then we don't need to be here

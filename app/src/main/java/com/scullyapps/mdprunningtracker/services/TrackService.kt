@@ -14,6 +14,7 @@ import android.os.IBinder
 import com.google.android.gms.maps.model.LatLng
 import android.util.Log
 import androidx.core.content.ContextCompat
+import com.scullyapps.mdprunningtracker.R
 import com.scullyapps.mdprunningtracker.model.Trackpoint
 
 
@@ -47,8 +48,11 @@ class TrackService : Service() {
 
     // constants
     val NOTF_CHANNEL_ID = 133742
-    val LOCATION_UPDATE_RATE = 10000L
+    val LOCATION_UPDATE_RATE = 1000L
     val LOCATION_RANGE       = 0.2f
+
+    lateinit var notification        : Notification
+    lateinit var notificationManager : NotificationManager
 
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -57,11 +61,13 @@ class TrackService : Service() {
     }
 
     override fun onCreate() {
-        startForeground(NOTF_CHANNEL_ID, makeNotification())
+        makeNotification()
+        startForeground(NOTF_CHANNEL_ID, notification)
     }
 
     override fun onDestroy() {
         Log.d(TAG, "We're being destroyed!")
+        locManager?.removeUpdates(listener)
         super.onDestroy()
     }
 
@@ -82,9 +88,8 @@ class TrackService : Service() {
         }
     }
 
-    fun makeNotification() : Notification {
+    fun makeNotification() {
         val channel = NotificationChannel("TrackLocService", "Track Location Channel", NotificationManager.IMPORTANCE_HIGH)
-
         val def = getSystemService(NotificationManager::class.java) as NotificationManager
 
         def.createNotificationChannel(channel)
@@ -94,8 +99,10 @@ class TrackService : Service() {
         build.setAutoCancel(false)
              .setContentTitle("Runt - Tracking Location")
              .setContentText("Runt service is running")
+             .setSmallIcon(R.drawable.ic_launcher_foreground)
 
-        return build.build()
+        notificationManager = def
+        notification = build.build()
     }
 
     fun startTracking() {
@@ -108,13 +115,20 @@ class TrackService : Service() {
         }
     }
 
+    fun stop() {
+        Log.d(TAG, "Stopping our service")
+        notificationManager.cancelAll()
+
+        locManager?.removeUpdates(listener)
+        stopSelf()
+    }
+
 
     inner class LocListener(provider : String) : LocationListener {
 
         val TAG = "LocListener"
 
         var lastLocation : Location
-
         var sequence = 0
 
         init {
@@ -128,8 +142,6 @@ class TrackService : Service() {
 
             val newTrack = Trackpoint(99, sequence++, lat, lng, -1.0, location.time)
 
-            // trackpoints.add()
-
             if(BOUNDED) {
                 onNewLocation?.invoke(newTrack)
             } else {
@@ -137,8 +149,6 @@ class TrackService : Service() {
             }
 
             Log.d(TAG, "We've found a location: ${currentLatLng}")
-
-
         }
         override fun onStatusChanged(p0: String?, p1: Int, p2: Bundle?) { Log.d(TAG, "onStatusChanged") }
         override fun onProviderEnabled(p0: String?) { Log.d(TAG, "onProviderEnabled") }
@@ -156,9 +166,7 @@ class TrackService : Service() {
 
         fun getNewTrackpoints() : ArrayList<Trackpoint> {
             val ret = trackpoints_buffer
-
             trackpoints_buffer.clear()
-
             return ret
         }
     }

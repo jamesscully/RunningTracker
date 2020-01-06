@@ -23,6 +23,7 @@ import com.scullyapps.mdprunningtracker.R
 import com.scullyapps.mdprunningtracker.model.Trackpoint
 import com.scullyapps.mdprunningtracker.services.TrackService
 import kotlinx.android.synthetic.main.activity_track.*
+import kotlin.math.round
 
 class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
 
@@ -39,28 +40,19 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
 
 
     var currentLatLng: LatLng = LatLng(0.0,0.0)
-    var currentRotation = 0.0f
 
     var servConnection : TrackConnection = TrackConnection()
 
     lateinit var START_TRACKPOINT : Trackpoint
     lateinit var LAST_TRACKPOINT  : Trackpoint
 
+    var distanceTravelled : Double = 0.0
+
     var trackpoints = ArrayList<Trackpoint>()
 
     override fun onMapReady(map: GoogleMap?) {
         if(map != null) {
             googleMap = map
-
-            if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                val currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                val latLng = LatLng(currentLocation.latitude, currentLocation.longitude)
-
-                currentLatLng = latLng
-
-                drawRunnerDot()
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17f))
-            }
         }
     }
 
@@ -74,7 +66,6 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
             Log.d(TAG, "We've connected to the service")
             trackService = (service as TrackService.OurLocBinder).getService()
             binder = service
-            trackService?.startTracking()
             onResume()
         }
     }
@@ -89,12 +80,25 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         val mapFrag : SupportMapFragment = supportFragmentManager.findFragmentById(R.id.trackTripMap) as SupportMapFragment
-        mapFrag.getMapAsync(this)
+            mapFrag.getMapAsync(this)
 
         track_toggle.setOnClickListener {
-            trackService?.startTracking()
+            val btn = track_toggle
+
+            if(btn.text == "Start") {
+                track_toggle.text = "Stop"
+                trackService?.startTracking()
+            } else {
+                track_toggle.text = "Start"
+                stopAndDestroy()
+            }
         }
 
+    }
+
+    fun stopAndDestroy() {
+        val int = Intent(this.application, TrackService::class.java)
+        trackService?.stop()
     }
 
     fun startAndBind() {
@@ -114,6 +118,7 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
 
     override fun onResume() {
         super.onResume()
+
         startAndBind()
 
         if(binder != null) {
@@ -140,7 +145,7 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
     }
 
     fun calculateStats() {
-        track_distance.text = SphericalUtil.computeDistanceBetween(START_TRACKPOINT.latLng, LAST_TRACKPOINT.latLng).toString().plus("m")
+        // track_distance.text = SphericalUtil.computeDistanceBetween(START_TRACKPOINT.latLng, LAST_TRACKPOINT.latLng).toString().plus("m")
     }
 
     fun plot() {
@@ -160,7 +165,16 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
         if(!::LAST_TRACKPOINT.isInitialized) {
             START_TRACKPOINT = track
             LAST_TRACKPOINT = track
+        } else {
+            distanceTravelled += SphericalUtil.computeDistanceBetween(LAST_TRACKPOINT.latLng, track.latLng)
+            round(distanceTravelled)
+
+
+
+            track_distance.text = distanceTravelled.toString().plus("m")
         }
+
+
 
         val opts = PolylineOptions().color(Color.MAGENTA)
 
@@ -171,6 +185,8 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
         googleMap.addPolyline(opts)
 
         LAST_TRACKPOINT = track
+
+        highlightTrackpoint(track)
     }
 
 
@@ -184,6 +200,34 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
         googleMap.addCircle(
             runnerDot.center(currentLatLng)
         )
+    }
+
+    fun highlightTrackpoint(track : Trackpoint) {
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(track.latLng, 17.5f))
+    }
+
+    fun getTimeStamp(start : Long, end : Long) : String {
+        val elapsed : Long =  start - end
+
+
+        // TODO check this for errors;
+
+        var temp : Long = elapsed
+
+        val hours = temp / (60 * 60)
+        temp %= (60 * 60)
+        val mins  = temp / 60
+        temp %= 60
+        val secs  = temp
+
+        var out = ""
+
+        // concatenate if we need to; so we dont have 0h0m59s, just 59s
+        if(hours > 0) out += "${hours}h "
+        if(mins  > 0) out += "${mins}m "
+        if(secs  > 0) out += "${secs}s"
+
+        return out
     }
 }
 

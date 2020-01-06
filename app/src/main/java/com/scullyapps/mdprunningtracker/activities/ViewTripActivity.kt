@@ -27,6 +27,12 @@ import com.scullyapps.mdprunningtracker.model.Trackpoint
 import com.scullyapps.mdprunningtracker.model.Trip
 import com.scullyapps.mdprunningtracker.views.TrackpointView
 import kotlinx.android.synthetic.main.activity_view_trip.*
+import androidx.core.app.ComponentActivity
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+
+
 
 class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -52,7 +58,12 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(map: GoogleMap?) {
         if(map != null) {
             googleMap = map
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(trip.getLatLngBounds(), 100))
+
+            val width = resources.displayMetrics.widthPixels
+            val height = resources.displayMetrics.heightPixels
+            val padding = (width * 0.12).toInt() // offset from edges of the map 12% of screen
+
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(trip.getLatLngBounds(), width, height, padding))
             drawPolyline()
         }
     }
@@ -229,4 +240,6 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
     fun getPolyLine(options : PolylineOptions) : PolylineOptions {
         return options.width(10f).color(Color.BLUE)
     }
+
+
 }
