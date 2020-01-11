@@ -42,6 +42,9 @@ class TrackService : Service() {
     var BOUNDED = false
 
 
+    var PAUSED = false
+
+
     // callback for when we receive an update; this will act upon in TrackActivity
     var onNewLocation: ((track : Trackpoint) -> Unit)? = null
 
@@ -112,15 +115,18 @@ class TrackService : Service() {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_UPDATE_RATE, LOCATION_RANGE, listener)
         }
+
+        PAUSED = false
     }
 
     fun startForeground() {
+        BOUNDED = false
         startForeground(NOTF_CHANNEL_ID, notification)
     }
 
     fun removeForeground() {
         BOUNDED = true
-        stopForeground(true)
+        stopForeground(false)
     }
 
     fun stop() {
@@ -129,6 +135,10 @@ class TrackService : Service() {
 
         locManager?.removeUpdates(listener)
         stopSelf()
+    }
+
+    fun pause() {
+        PAUSED = true
     }
 
 
@@ -144,6 +154,10 @@ class TrackService : Service() {
         }
 
         override fun onLocationChanged(location: Location) {
+
+            if(PAUSED)
+                return
+
             val lat = location.latitude
             val lng = location.longitude
 
@@ -175,10 +189,11 @@ class TrackService : Service() {
         }
 
         fun getNewTrackpoints() : ArrayList<Trackpoint> {
+            // create a copy of our buffer, since we're going to need to clear it
             val ret = ArrayList<Trackpoint>(trackpoints_buffer)
-            println("Sending trackpoints: $ret ")
+
             trackpoints_buffer.clear()
-            println("After clear: trackpoints: $ret ")
+
             return ret
         }
     }

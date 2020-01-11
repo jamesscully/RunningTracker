@@ -21,8 +21,6 @@ import kotlin.math.round
 
 data class Trip(val id: Int, var name: String, var notes: String) : Parcelable {
 
-
-
     lateinit var movement : Movement
 
     var rating   = 0

@@ -92,11 +92,20 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
             val btn = track_toggle
 
             if(btn.text == "Start") {
-                track_toggle.text = "Stop"
+                track_toggle.text = "Pause"
                 trackService?.startTracking()
                 startTime = System.currentTimeMillis() / 1000L
             } else {
                 track_toggle.text = "Start"
+
+                trackService?.pause()
+
+                // stopAndDestroy()
+            }
+        }
+
+        track_stop.setOnClickListener {
+            if(trackService != null) {
                 stopAndDestroy()
             }
         }
@@ -104,7 +113,6 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
     }
 
     fun stopAndDestroy() {
-        val int = Intent(this.application, TrackService::class.java)
         trackService?.stop()
     }
 
@@ -141,6 +149,10 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
                 println("Received trackpoints: $new")
 
                 trackpoints.addAll(new)
+
+                for(x in new) {
+                    plotNew(x)
+                }
             }
 
             if(trackpoints.size > 0) {
@@ -189,11 +201,9 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
         track_time.text = getTimeStamp()
         track_speed.text = getAverageDistance()
 
-
         googleMap.addCircle(
             CircleOptions().radius(1.0).fillColor(Color.RED).center(track.latLng)
         )
-
 
         val opts = PolylineOptions().color(Color.MAGENTA)
 
