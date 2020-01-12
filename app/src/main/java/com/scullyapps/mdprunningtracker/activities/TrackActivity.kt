@@ -20,7 +20,10 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.SphericalUtil
 import com.scullyapps.mdprunningtracker.R
+import com.scullyapps.mdprunningtracker.database.DBHelper
+import com.scullyapps.mdprunningtracker.model.Movement
 import com.scullyapps.mdprunningtracker.model.Trackpoint
+import com.scullyapps.mdprunningtracker.model.Trip
 import com.scullyapps.mdprunningtracker.services.TrackService
 import kotlinx.android.synthetic.main.activity_track.*
 import kotlin.math.round
@@ -32,8 +35,6 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
     lateinit var googleMap : GoogleMap
 
     val TAG = "TrackActivityTAG"
-
-    var SERVICE_RUNNING = false
 
     var trackService : TrackService? = null
     var binder : TrackService.OurLocBinder? = null
@@ -50,8 +51,12 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
 
     var trackpoints = ArrayList<Trackpoint>()
 
-    var startTime : Long = 0
     var runTime   : Long = 0
+
+    var pausedTime = 0
+
+
+    val getUnixNow get() = System.currentTimeMillis() / 1000L
 
     override fun onMapReady(map: GoogleMap?) {
         if(map != null) {
@@ -68,6 +73,9 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
         override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
             Log.d(TAG, "We've connected to the service")
             trackService = (service as TrackService.OurLocBinder).getService()
+
+
+
             binder = service
             onResume()
         }
@@ -93,23 +101,44 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
 
             if(btn.text == "Start") {
                 track_toggle.text = "Pause"
-                trackService?.startTracking()
-                startTime = System.currentTimeMillis() / 1000L
+                resumeRun()
             } else {
                 track_toggle.text = "Start"
-
-                trackService?.pause()
-
-                // stopAndDestroy()
+                pauseRun()
             }
         }
 
+        // when we stop our run, we need to package it as a Trip and send to ViewTripActivity
         track_stop.setOnClickListener {
             if(trackService != null) {
                 stopAndDestroy()
+
+                val movement = Movement(trackpoints)
+
+                val trip = Trip(DBHelper(this).nextTripId, "New Trip", "")
+
+                val intent = Intent(this, ViewTripActivity::class.java)
+
+                intent.putExtra("trip", trip)
+                intent.putExtra("movement", movement)
+
+                intent.putExtra("creating", true)
+
+                startActivity(intent)
+
+                // we don't want to keep this activity in the stack; remove it.
+                finish()
             }
         }
 
+    }
+
+    fun pauseRun() {
+        trackService?.pause()
+    }
+
+    fun resumeRun() {
+        trackService?.startTracking()
     }
 
     fun stopAndDestroy() {
@@ -119,6 +148,7 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
     fun startAndBind() {
         val int = Intent(this.application, TrackService::class.java)
         this.application.bindService(int, servConnection, Context.BIND_AUTO_CREATE)
+        trackService?.tID = DBHelper(this).nextTripId
     }
 
     fun unbind() {
@@ -205,7 +235,7 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
             CircleOptions().radius(1.0).fillColor(Color.RED).center(track.latLng)
         )
 
-        val opts = PolylineOptions().color(Color.MAGENTA)
+        val opts = PolylineOptions().width(10f).color(Color.BLUE)
 
         // we'll need to add from our last trackpoint to the new one, then reset the last trackpoint
         opts.add(LAST_TRACKPOINT.latLng)
@@ -238,9 +268,7 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
     }
 
     fun getTimeStamp() : String {
-        runTime = System.currentTimeMillis() / 1000L - startTime
-
-        // TODO check this for errors;
+        runTime = getUnixNow - START_TRACKPOINT.time
 
         var temp : Long = runTime
 

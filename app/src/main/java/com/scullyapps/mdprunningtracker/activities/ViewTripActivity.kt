@@ -25,13 +25,12 @@ import com.scullyapps.mdprunningtracker.model.Comment
 import com.scullyapps.mdprunningtracker.model.Movement
 import com.scullyapps.mdprunningtracker.model.Trackpoint
 import com.scullyapps.mdprunningtracker.model.Trip
-import com.scullyapps.mdprunningtracker.views.TrackpointView
 import kotlinx.android.synthetic.main.activity_view_trip.*
 import androidx.core.app.ComponentActivity
 import androidx.core.app.ComponentActivity.ExtraData
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-
+import androidx.appcompat.app.AlertDialog
 
 
 class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -52,8 +51,10 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     val trackpoints get() = trip.movement.trackpoints
-
     val commentMap get() = trip.comments
+
+    var CREATING : Boolean = false
+    var MODIFIED : Boolean = false
 
     override fun onMapReady(map: GoogleMap?) {
         if(map != null) {
@@ -61,14 +62,13 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
 
             val width = resources.displayMetrics.widthPixels
             val height = resources.displayMetrics.heightPixels
-            val padding = (width * 0.12).toInt()
+            val padding = (width * 0.05).toInt()
 
             googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(trip.getLatLngBounds(), width, height, padding))
             drawPolyline()
         }
     }
 
-    var CREATING : Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,7 +82,8 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
 
         CREATING = intent.extras?.get("creating") as Boolean
 
-        // if we're creating, we're likely coming from importing a GPX file, and thus we'll need to get movement from intent
+        // if we're creating, we're likely coming from importing a GPX file / tracking,
+        // and thus we'll need to get movement from intent
         if(CREATING) {
             trip.movement = intent.extras?.get("movement") as Movement
         } else {
@@ -123,6 +124,7 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
         // when the user has input a comment, we put it in the map
         mAdapter.onComment = {seq, comment ->
             commentMap.put(seq, comment)
+            MODIFIED = true
         }
 
     }
@@ -137,6 +139,7 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
             override fun afterTextChanged(p0: Editable?) {
                 trip.name = p0.toString()
                 act_trip_save.visibility = View.VISIBLE
+                MODIFIED = true
             }
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -184,8 +187,38 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
         } else {
             contentResolver.update(Contract.ALL_TRIPS, cv, "_id=?", arrayOf(trip.id.toString()))
         }
+
+        if(CREATING)
+            CREATING = false
+        if(MODIFIED)
+            MODIFIED = false
     }
 
+    override fun onBackPressed() {
+
+        // if we're simply viewing this trip, then we don't want to leave
+        if(!CREATING && !MODIFIED)
+            super.onBackPressed()
+
+        val warnUser = AlertDialog.Builder(this)
+
+        if(CREATING)
+            warnUser.setMessage("Careful! You'll be leaving an unsaved trip \n\n Are you sure you wish to discard changes?")
+        if(MODIFIED)
+            warnUser.setMessage("Careful! You'll be discarding unsaved changes \n\n Are you sure you wish to discard changes?")
+
+
+        warnUser.setPositiveButton("Save") { d, i ->
+            save()
+            finish()
+        }
+
+        warnUser.setNegativeButton("No, exit") { d, i ->
+            super.onBackPressed()
+        }
+
+        warnUser.show()
+    }
 
 
     fun highlightTrackpoint(track : Trackpoint) {
@@ -203,7 +236,7 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
         )
 
         googleMap.addMarker(
-            MarkerOptions().position(track.latLng).title("Test")
+            MarkerOptions().position(track.latLng)
         )
     }
 

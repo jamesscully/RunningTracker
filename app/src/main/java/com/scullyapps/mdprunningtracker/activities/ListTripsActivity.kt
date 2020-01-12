@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
 import com.google.android.gms.maps.*
 import kotlinx.android.synthetic.main.activity_list_trips.*
 import com.google.android.gms.maps.model.LatLng
@@ -31,11 +32,9 @@ class ListTripsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(map: GoogleMap?) {
         if(map != null) {
             googleMap = map
-            map.moveCamera(CameraUpdateFactory.newLatLng(LatLng(51.5074, 0.1278)))
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(52.9386, -1.1952), 17f))
         }
     }
-
-    // todo implement permissions prompt
 
     override fun onResume() {
         super.onResume()
@@ -71,16 +70,29 @@ class ListTripsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFrag : SupportMapFragment = supportFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment
         mapFrag.getMapAsync(this)
 
-
-
         button.setOnClickListener {
-            val intent = Intent()
-            intent.setType("*/*")
-                  .action = Intent.ACTION_GET_CONTENT
+            val dialog = AlertDialog.Builder(this)
 
-            startActivityForResult(Intent.createChooser(intent, "Select GPX data"), 777)
+            dialog.setMessage("Importing a GPX file will take a few seconds depending on file size. Making comments on certain points may be difficult.\n\nAre you sure you wish to continue?")
+            dialog.setPositiveButton("Yes") { dialogInt, i ->
+                // calling startActivityForResult in a dialog messes with the activity stack
+                openGPXChooser()
+            }
+            dialog.setNegativeButton("No, take me back!") { dialogInt, i ->
+                dialogInt.cancel()
+            }
+            dialog.show()
+
         }
 
+    }
+
+    fun openGPXChooser() {
+        val intent = Intent()
+        intent.setType("*/*")
+              .action = Intent.ACTION_GET_CONTENT
+
+        startActivityForResult(Intent.createChooser(intent, "Select GPX data"), 777)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -116,6 +128,8 @@ class ListTripsActivity : AppCompatActivity(), OnMapReadyCallback {
         mAdapter.onItemClick = { pos, view ->
             val trip = trips[pos]
 
+            googleMap.clear()
+
             googleMap.addPolyline(
                 getPolyLine(trip.plotLineOptions)
             )
@@ -134,7 +148,7 @@ class ListTripsActivity : AppCompatActivity(), OnMapReadyCallback {
     // this standardizes our polyline process; we can
     // simply change the line effects here rather than multiple places
     fun getPolyLine(options : PolylineOptions) : PolylineOptions{
-        return options.width(25f).color(Color.BLUE)
+        return options.width(10f).color(Color.BLUE)
     }
 
 }

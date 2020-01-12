@@ -183,9 +183,6 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable {
 
             // for all comments in the array, we'll add them to our local array
             for (x in 0 until coms.length()) {
-
-
-
                 if (coms.get(x).toString() == "null")
                     continue
 

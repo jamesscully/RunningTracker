@@ -14,10 +14,10 @@
     <stroke android:width="3px" android:color="#505050"/>
 
     <corners
-        android:topLeftRadius="15pt"
-        android:topRightRadius="15pt"
-        android:bottomLeftRadius="15pt"
-        android:bottomRightRadius="15pt"
+        android:topLeftRadius="100pt"
+        android:topRightRadius="100pt"
+        android:bottomLeftRadius="100pt"
+        android:bottomRightRadius="100pt"
         />
 
 </shape>

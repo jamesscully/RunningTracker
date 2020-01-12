@@ -76,7 +76,9 @@ showstringspaces=false}
 \newpage
 
 \section{Preamble}
-The project was written in Kotlin to simplify development; namely data-classes, simplified listeners, lambdas and anonymous classes. It does however use Java for the ContentProvider and Database, as the author is much more versed with these types of classes in Java. \\
+The project was written in Kotlin over Java for multiple reasons, namely the null-safety that Kotlin offers as it is easy to produce NullPointerExceptions in Java, whereas Kotlin allows for null values to be ignored and not used. Lambdas, listeners and anonymous classes are also much less verbose and thus makes code more legible compared to Java. \\
+
+It does however use Java for the ContentProvider and SQLiteDatabase, as the author is more versed with these types of classes in Java from coursework material and coursework material.\\
 
 The application itself allows for the importing of GPX (albeit very verbose) data, tracking of running and annotating each trip through ratings and comments on milestones throughout the run.
 
@@ -148,6 +150,37 @@ Once the user navigates away from the activity, in the case that they put it int
 
 Once the user comes back to the application, we will bind back to the activity. This removes the service from the foreground, as we do not need it whilst they are using our app. \\
 When this happens, the BOUNDED variable will be updated in the service and once we receive our binder, we retrieve the services buffer (which is then cleared) and we add each new Trackpoint to the activities buffer aswell as the map. \\
+
+
+\section{Database}
+
+The database contains two tables: Trip and Movement.
+
+The Trip table contains the ID of the trip, the Name of the trip and Notes, a column that uses JSON for miscellaneous data about the trip, such as ratings and comments. We decided to use this format instead of an explicit ratings column and comments column because it is more extensible. \\
+In the case that a feature was to be added, such as a description of the trip, we can add this to the Trip model class by including getting a 'description' key from JSON and writing it to the JSON. 
+
+We can then implement a TextView for the description in the relevant activity and link it to the Trip variable. This is in contrast to an approach where we would add a description column to the table. In this case, after updating the table, we would have to write more code for the ContentProvider to retrieve this data, linking this to the activity and so forth.
+
+
+The Movement table contains Trackpoint data, with a foreign key of the above Trip ID (tID). This table resembles a GPX trkpt, the only difference being the inclusion of a seq column to keep track of the order packets should be in. This mainly came about due to a mis-reading of the coursework specification, whereby the author thought GPX files must be able to be imported.
+
+\newpage
+
+
+\section{Google Maps integration}
+When it came to the RunningTracker, there was no better way to show the user their journey and visualize annotation better than implementing a Map view. \\
+
+The initial idea was to create an Intent to open Google Maps on the users phone, however this would be cumbersome especially when attempting to look at a certain point and write or view a comment.\\
+
+
+Another problem with this approach is that if Google Maps was not installed or disabled on the users phone, the action would fail or be opened in the browser. Instead, with an integrated fragment approach, the only requirement is that the user has Google Play Services installed, which most, if not all (apart from newly-rooted) devices will have.\\
+
+
+
+\section{Appendix}
+
+\subsection{TrackActivity to TrackService}
+
 
 
 

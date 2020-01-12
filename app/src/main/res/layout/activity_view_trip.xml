@@ -41,6 +41,7 @@
                 android:background="@android:color/transparent"
                 android:drawableRight="@drawable/ic_edit"
                 android:drawablePadding="10pt"
+                android:drawableTint="@color/colorAccent"
                 android:text="Trip Name"
                 android:textSize="30sp"
                 android:textStyle="bold" />
@@ -68,6 +69,7 @@
                     android:layout_marginRight="8dp"
                     android:layout_weight="0"
                     android:drawableLeft="@drawable/ic_running"
+                    android:drawableTint="@color/colorAccent"
                     android:gravity="center_vertical"
                     android:textStyle="bold"
                     tools:text="1337m" />
@@ -80,6 +82,7 @@
                     android:layout_weight="0"
                     android:drawableLeft="@drawable/ic_chart"
                     android:gravity="center_vertical"
+                    android:visibility="gone"
                     tools:text="51m "
                     tools:visibility="gone" />
 
@@ -90,6 +93,7 @@
                     android:layout_marginRight="8dp"
                     android:layout_weight="0"
                     android:drawableLeft="@drawable/ic_time"
+                    android:drawableTint="@color/colorAccent"
                     android:gravity="center_vertical"
                     tools:text="1h20m" />
 
@@ -100,6 +104,7 @@
                     android:layout_marginRight="8dp"
                     android:layout_weight="0"
                     android:drawableLeft="@drawable/ic_avg_speed"
+                    android:drawableTint="@color/colorAccent"
                     android:gravity="center_vertical"
                     android:visibility="visible"
                     tools:text="50m/h" />

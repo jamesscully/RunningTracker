@@ -15,6 +15,7 @@ import com.google.android.gms.maps.model.LatLng
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.scullyapps.mdprunningtracker.R
+import com.scullyapps.mdprunningtracker.database.DBHelper
 import com.scullyapps.mdprunningtracker.model.Trackpoint
 
 
@@ -30,16 +31,17 @@ class TrackService : Service() {
     lateinit var currentLatLng : LatLng
 
     var locManager : LocationManager? = null
-    var listener   : LocListener? = null
 
     var trackpoints_buffer = ArrayList<Trackpoint>()
 
     val binder = OurLocBinder()
 
 
+    var tID : Int = 99
+
+
     // whether we're bounded; so we can buffer data
     var BOUNDED = false
-
 
     var PAUSED = false
 
@@ -108,7 +110,6 @@ class TrackService : Service() {
 
     fun startTracking() {
         initLocManager()
-        listener = LocListener(LocationManager.GPS_PROVIDER)
 
         // we'll need to get location updates from the GPS provider, and we must check beforehand
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -141,19 +142,23 @@ class TrackService : Service() {
     }
 
 
-    inner class LocListener(provider : String) : LocationListener {
+    val listener : LocationListener = object : LocationListener {
 
         val TAG = "LocListener"
 
         var lastLocation : Location
         var sequence = 0
 
+        val provider = LocationManager.GPS_PROVIDER
+
         init {
+
             lastLocation = Location(provider)
         }
 
         override fun onLocationChanged(location: Location) {
 
+            // when the user pauses the service, we need to stop sending updates
             if(PAUSED)
                 return
 
@@ -162,7 +167,10 @@ class TrackService : Service() {
 
             currentLatLng  = LatLng(lat, lng)
 
-            val newTrack = Trackpoint(99, sequence++, lat, lng, -1.0, location.time)
+            // Location class returns time in milliseconds
+            val time = location.time / 1000L
+
+            val newTrack = Trackpoint(tID, sequence++, lat, lng, -1.0, time)
 
             if(BOUNDED) {
                 onNewLocation?.invoke(newTrack)

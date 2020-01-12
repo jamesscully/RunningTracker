@@ -5,4 +5,8 @@
 \contentsline {subsection}{\numberline {2.3}Movement}{3}{subsection.2.3}% 
 \contentsline {section}{\numberline {3}Activities navigation}{4}{section.3}% 
 \contentsline {section}{\numberline {4}TrackActivity and TrackService}{5}{section.4}% 
-\contentsline {section}{\numberline {5}Appendix}{6}{section.5}% 
+\contentsline {section}{\numberline {5}Database}{5}{section.5}% 
+\contentsline {section}{\numberline {6}Google Maps integration}{6}{section.6}% 
+\contentsline {section}{\numberline {7}Appendix}{6}{section.7}% 
+\contentsline {subsection}{\numberline {7.1}TrackActivity to TrackService}{6}{subsection.7.1}% 
+\contentsline {section}{\numberline {8}Appendix}{7}{section.8}% 
