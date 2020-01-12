@@ -25,7 +25,6 @@ class TrackService : Service() {
     // when we rebind, we check to see if our new trackpoints > 0
     // then we send these across, and clear our copy.
 
-
     private val TAG: String = "TrackService";
 
     lateinit var currentLatLng : LatLng

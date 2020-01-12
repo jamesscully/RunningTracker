@@ -1,0 +1,171 @@
+\documentclass[11pt]{article}
+
+\usepackage{outlines}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\usepackage{subcaption}
+\usepackage[margin=1in]{geometry}
+
+\usepackage{geometry}
+\usepackage[square,sort,comma,numbers,super]{natbib}
+\usepackage{pdflscape}
+\usepackage{hyperref}
+\usepackage{afterpage}
+
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+
+\usepackage{listings}
+
+\lstset{language=Java, 
+numbers=left, 
+numberstyle=\tiny, 
+stepnumber=1,
+numbersep=5pt, 
+tabsize=4,
+basicstyle=\ttfamily,
+keywordstyle=\color{textblue},
+commentstyle=\color{textred},   
+stringstyle=\color{textgreen},
+frame=none,                    
+columns=fullflexible,
+keepspaces=true,
+xleftmargin=\parindent,
+showstringspaces=false}
+
+\graphicspath{ {./images/} }
+
+\setlength{\parindent}{0pt}
+
+\title{\textbf{Runt - The Running Tracker}}
+
+\author{James Scully}
+
+
+\newcommand{\act}{}
+
+
+\begin{document}
+
+\hspace{0pt}
+
+\vfill
+
+\begin{center}
+	\includegraphics[width=30em]{runtlogo_dark}
+	
+	\vspace{1cm}	
+	{\Large \textbf{Runt - The MDP Running Tracker}} \linebreak
+	
+	\begin{large}
+		\textbf{James Scully (14304469) \\
+		psyjs20@nottingham.ac.uk \\}
+	\end{large}
+	
+\end{center}
+
+\vfill
+
+\pagebreak
+
+\tableofcontents
+
+\newpage
+
+\section{Preamble}
+The project was written in Kotlin to simplify development; namely data-classes, simplified listeners, lambdas and anonymous classes. It does however use Java for the ContentProvider and Database, as the author is much more versed with these types of classes in Java. \\
+
+The application itself allows for the importing of GPX (albeit very verbose) data, tracking of running and annotating each trip through ratings and comments on milestones throughout the run.
+
+\section{Terminology}
+\subsection{Trip} 
+A \textit{Trip} refers to a run; as the user could use this for running/walking/journeys, we decided to name it trip. It is a dataclass found as Trip.kt. It holds the following: \\
+
+\begin{tabular}{lcl}
+\textbf{id} & - & The ID of the Trip \\ 
+\textbf{name} & - & Name of the Trip\\ 
+\textbf{notes} & - & \begin{tabular}{@{}l@{}}Contains JSON data for various settings of a trip, such as rating, comments \\ on trackpoints, etc. This is used so additional functionality could be added later.\end{tabular}\\ 
+\end{tabular} 
+\newline
+
+\subsection{Trackpoint}
+Trackpoint refers to the data-class Trackpoint.kt, which stores data on a point during the run, such as:  \\
+
+\begin{tabular}{lcl}
+\textbf{tID} & - & Trip ID it is associated with \\ 
+\textbf{seq} & - & Sequence number of the point in the run \\ 
+\textbf{lat/lng} & - & Latitude / longitude coordinate of the point\\ 
+\textbf{elev*} & - & Unused; elevation at the point. \\ 
+\textbf{time} & - & Seconds since the Unix epoch \\ 
+\end{tabular} 
+\newline
+
+\textit{* unused due to permissions needed from Google for Elevations API. Can however be gathered through importing GPX data.}
+
+
+\subsection{Movement}
+This is an array of \textbf{Trackpoints}, which is held by a \textbf{Trip} object. This makes it easy to get the first and last of a Trips trackpoints, for estimating journey length, distance and starting / end dates.
+
+
+\newpage
+\section{Activities navigation}
+
+Runt contains the following activities: \\
+
+\textbf{IntroActivity}\\
+This is where we prompt the user of what the apps purpose is, and whether they accept to our permissions that we need; storage access and location. \\
+
+\textbf{MainActivity} \\
+This acts as the main menu, where users can decide whether they want to start a new run, view their previous trips or exit the app. \\
+
+\textbf{ListTripsActivity} \\
+This displays the users each trip with data such as how far they ran and in how long. It will initially contain one test trip, but is where the users can find and import GPX data (the Import button on the map).\\
+
+\textbf{ViewTripActivity} \\
+This is where the user can view their trip in detail; it shows the route they took through Google Maps, the rating they chose for the trip and comments made on each of the milestones in the run. Clicking on a milestone will highlight it on the map. \\
+
+\textbf{TrackActivity} \\
+This is where the user starts and stops their run, they can view where they are and been on the map, with updates to how fast they are running, how long for and how far.\\
+
+You can view the Navigation diagram in the Appendix.
+
+
+\newpage
+
+\section{TrackActivity and TrackService}
+
+Two of the main components in the application would be how the application tracks the user during their run, and updates the activity to show this.  \\
+The way these two work together are as follows: \\
+
+The user starts the activity. At this point, we start and bind to the service, but \textbf{don't} start tracking the user yet. It is at this point we receive the IBinder object to the service.\\ 
+
+Then when the user presses start, we invoke the startTracking() function on the service, which will create a LocationListener that will register location updates and - whilst we're bounded - add Trackpoints to our \textbf{activities} trackpoint buffer. This allows the map to be updated for each location update, so the user can see where they've been and where they are. \\
+
+Once the user navigates away from the activity, in the case that they put it into their pocket or check another app, we unbind from the service and move the service to the foreground (since Android Q, we need to keep a persistent notification for foreground). Each location update from here will be added to the services own Trackpoint buffer. \\ 
+
+Once the user comes back to the application, we will bind back to the activity. This removes the service from the foreground, as we do not need it whilst they are using our app. \\
+When this happens, the BOUNDED variable will be updated in the service and once we receive our binder, we retrieve the services buffer (which is then cleared) and we add each new Trackpoint to the activities buffer aswell as the map. \\
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\section{Appendix}
+
+\end{document}

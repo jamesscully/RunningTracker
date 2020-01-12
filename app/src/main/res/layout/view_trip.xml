@@ -52,6 +52,7 @@
             android:layout_weight="0"
             android:drawableLeft="@drawable/ic_chart"
             android:gravity="center_vertical"
+            android:visibility="gone"
             tools:text="51m " />
 
         <TextView
