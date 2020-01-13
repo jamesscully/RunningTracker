@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">MDPRunningTracker</string>
+
+
+    <string-array name="stats">
+        <item>Day</item>
+        <item>Week</item>
+        <item>Month</item>
+        <item>Year</item>
+    </string-array>
 </resources>

@@ -34,7 +34,6 @@
             android:background="@drawable/sty_button"
             android:shadowColor="@color/colorAccent"
             android:text="&#x1f3c3; Start a new run"
-            android:textColor="#000"
             android:textStyle="bold" />
 
         <LinearLayout
@@ -52,8 +51,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:background="@drawable/sty_button"
-                android:text="View Previous Trips"
-                android:textColor="#000" />
+                android:text="View Previous Trips" />
 
             <Button
                 android:id="@+id/main_btn_options"
@@ -70,8 +68,7 @@
                 android:layout_width="250dp"
                 android:layout_height="wrap_content"
                 android:background="@drawable/sty_button"
-                android:text="Exit"
-                android:textColor="#000" />
+                android:text="Exit" />
         </LinearLayout>
 
     </LinearLayout>

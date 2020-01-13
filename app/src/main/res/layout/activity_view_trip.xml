@@ -46,14 +46,35 @@
                 android:textSize="30sp"
                 android:textStyle="bold" />
 
-            <RatingBar
-                android:id="@+id/act_trip_rating"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:numStars="5"
-                android:rating="5"
-                android:stepSize="1" />
+                android:orientation="horizontal">
+
+                <RatingBar
+                    android:id="@+id/act_trip_rating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:numStars="5"
+                    android:rating="5"
+                    android:stepSize="1" />
+
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <ImageButton
+                    android:id="@+id/act_trip_delete"
+                    style="@style/Widget.AppCompat.ImageButton"
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="16dp"
+                    android:background="@android:color/transparent"
+                    android:scaleType="fitCenter"
+                    android:tint="@android:color/holo_red_light"
+                    app:srcCompat="@drawable/ic_delete" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

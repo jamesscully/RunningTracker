@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="125dp"
+    android:layout_marginBottom="8dp"
     android:background="@color/viewBackground"
     android:padding="12dp">
 
@@ -71,8 +72,9 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
             android:layout_weight="0"
-            android:text="aaa???"
-            android:visibility="gone" />
+            android:text="(click the name to highlight)"
+            android:textColor="#838383"
+            android:visibility="visible" />
     </LinearLayout>
 
     <ImageView

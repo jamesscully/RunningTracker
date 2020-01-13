@@ -41,7 +41,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public void addTestData(SQLiteDatabase db) {
-        db.execSQL("INSERT INTO Trip     (name, notes)        VALUES ('21st Jan', 'jsonhere')");
+        db.execSQL("INSERT INTO Trip     (name, notes)        VALUES ('Indian Ocean Journey', '{\"rating\":3,\"comments\":[\"Met Dave the Sea Dragon\",null,\"Found Half Life 3\"]}')");
         db.execSQL("INSERT INTO Movement (tID, seq, lat, lng, elev, time) VALUES (1, 0, -50, 50, 50, 1577628545)");
         db.execSQL("INSERT INTO Movement (tID, seq, lat, lng, elev, time) VALUES (1, 1, -50, 51, 51, 1577628555)");
         db.execSQL("INSERT INTO Movement (tID, seq, lat, lng, elev, time) VALUES (1, 2, -50, 52, 52, 1577628565)");

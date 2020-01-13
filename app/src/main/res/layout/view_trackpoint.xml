@@ -70,6 +70,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/darker_gray"
+            android:hint="Add a comment..."
             android:padding="8dp"
             android:visibility="gone"
             tools:text="Comment goes here if there is one, here's a long text to see what the comment should actually look like. It's a pretty long message, mind you, we might not have enough space in the variable!"

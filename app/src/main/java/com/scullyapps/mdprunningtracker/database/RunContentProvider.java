@@ -93,6 +93,15 @@ public class RunContentProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+        // in this case, we should only be deleting the trip
+        if(uriMatcher.match(uri) == CODE_TRIP) {
+            // delete the Trip row
+            db.delete("Trip", "_id=?", selectionArgs);
+
+            // delete all movement data associated with it
+            db.delete("Movement", "tID=?", selectionArgs);
+        }
+
         return 0;
     }
 

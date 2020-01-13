@@ -38,31 +38,8 @@ class TrackAdapter (private val dataset : ArrayList<Trackpoint>, private val com
 
         init {
             v.setOnClickListener(this)
-
-            comment.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(p0: Editable?) {
-                    println("Comment has been edited")
-                    onComment?.invoke(adapterPosition, p0.toString())
-                }
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-            })
         }
-
-        fun setComment(comment : String) {
-            this.comment.setText(comment)
-            this.comment.setText("blah")
-        }
-
-        fun getComment() = this.comment.text.toString()
-
     }
-
-    fun setComment() {
-
-    }
-
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackViewHolder {
         val tView = LayoutInflater.from(parent.context).inflate(R.layout.view_trackpoint, parent, false) as ConstraintLayout
@@ -96,6 +73,7 @@ class TrackAdapter (private val dataset : ArrayList<Trackpoint>, private val com
             }
         }
 
+        // if we have a comment for this position, add it and make visible
         if(comments.containsKey(position)) {
             val cmt = comments[position]
 
@@ -104,6 +82,16 @@ class TrackAdapter (private val dataset : ArrayList<Trackpoint>, private val com
                 holder.comment.visibility = View.VISIBLE
             }
         }
+
+        // invokes the onComment function in view trip - adds to comment map; updates modified variable
+        holder.comment.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {
+                println("Comment has been edited")
+                onComment?.invoke(position, p0.toString())
+            }
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+        })
 
     }
 

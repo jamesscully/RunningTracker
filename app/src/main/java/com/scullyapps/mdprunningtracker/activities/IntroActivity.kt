@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -18,8 +19,7 @@ class IntroActivity : AppCompatActivity() {
 
     val PERMISSIONS_NEEDED = arrayOf(
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_BACKGROUND_LOCATION
+        Manifest.permission.ACCESS_FINE_LOCATION
     )
 
 
@@ -28,10 +28,6 @@ class IntroActivity : AppCompatActivity() {
         setContentView(R.layout.activity_intro)
 
         supportActionBar?.hide()
-
-        // force dark mode
-        //AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-
 
         // if we've already got our permissions, then we don't need to be here
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
@@ -53,17 +49,28 @@ class IntroActivity : AppCompatActivity() {
 
 
         if(requestCode == 1337) {
-
-            if(grantResults.size == 3) {
+            if(allPermsGranted(grantResults)) {
                 launchMain()
-            }
+            } else {
+                val build = AlertDialog.Builder(this)
 
-            if(grantResults.isEmpty()) {
-                // we've not got them, do something
+                build.setMessage("Unfortunately you'll have to accept them else the software cannot be used. \n\n Please enable them in the app settings or restart the app.")
+                build.setPositiveButton("Okay") { d, i ->
+                    finish()
+                }
+                build.show()
             }
-
         }
 
+    }
+
+    fun allPermsGranted(grantResults: IntArray) : Boolean{
+        for(x in grantResults) {
+            if(x == PackageManager.PERMISSION_DENIED) {
+                return false
+            }
+        }
+        return true
     }
 
     fun launchMain() {

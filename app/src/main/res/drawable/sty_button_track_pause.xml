@@ -9,9 +9,8 @@
     <size android:height="24dp"
         android:width="24dp"/>
 
-    <solid android:color="#5F5F5F"/>
+    <solid android:color="#FF5656"/>
 
-    <stroke android:width="3px" android:color="#505050"/>
 
     <corners
         android:topLeftRadius="100pt"

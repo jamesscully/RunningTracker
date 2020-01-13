@@ -4,7 +4,7 @@
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <uses-permission-sdk-23 android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -21,7 +21,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.TrackActivity"></activity>
+        <activity android:name=".activities.TrackActivity"
+                    android:screenOrientation="portrait" />
         <activity android:name=".activities.IntroActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,9 +32,7 @@
         </activity>
         <activity android:name=".activities.ViewTripActivity" />
         <activity android:name=".activities.ListTripsActivity" />
-        <activity android:name=".activities.MainActivity">
-
-        </activity>
+        <activity android:name=".activities.MainActivity"></activity>
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -52,7 +51,7 @@
             android:exported="true"
             android:multiprocess="true" />
 
-        <service android:name=".services.TrackService"/>
+        <service android:name=".services.TrackService" />
     </application>
 
 </manifest>

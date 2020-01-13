@@ -94,13 +94,23 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
 
         act_trip_distance.text  = trip.getDistanceStamp()
         act_trip_time.text      = trip.getTimeStamp()
-        act_trip_elevgain.text  = trip.getElevationGain().toString().plus("m")
+
         act_trip_speed.text     = trip.getAverageDistance()
 
         act_trip_rating.rating = trip.rating.toFloat()
 
+
+        println(commentMap)
+
         setupRecycler()
         setupListeners()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+
+        outState.putParcelable("trip", trip)
+
+        super.onSaveInstanceState(outState)
     }
 
     fun setupRecycler() {
@@ -117,6 +127,7 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
             adapter = mAdapter
         }
 
+        // when the user clicks on a trackpoint, highlight it on the map.
         mAdapter.onItemClick = {pos ->
             highlightTrackpoint(trackpoints[pos])
         }
@@ -127,12 +138,16 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
             MODIFIED = true
         }
 
+        // because we're using a listener for when the text _changes_, our changes via code will set this variable to true on startup.
+        MODIFIED = false
+
     }
 
     fun setupListeners() {
         act_trip_rating.setOnRatingBarChangeListener { ratingBar, fl, b ->
             // we can safely change this to an Int as the ratingbar is limited to 1 star increments.
             trip.rating = fl.toInt()
+            MODIFIED = true
         }
 
         act_trip_name.addTextChangedListener(object : TextWatcher {
@@ -153,8 +168,28 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
         act_trip_save.setOnClickListener {
             save()
         }
+
+        // if we're creating, then it's likely we don't want to delete it right away.
+        if(CREATING)
+            act_trip_delete.visibility = View.GONE
+
+        act_trip_delete.setOnClickListener {
+            val build = AlertDialog.Builder(this)
+            build.setMessage("Are you sure you wish to delete this trip?")
+            build.setPositiveButton("Yes!") { dialogInterface, i ->
+                delete()
+            }
+            build.setNegativeButton("No!") { dialogInterface, i ->
+                dialogInterface.cancel()
+            }
+            build.show()
+        }
     }
 
+    fun delete() {
+        contentResolver.delete(Contract.ALL_TRIPS, "", arrayOf(trip.id.toString()))
+        finish()
+    }
 
     fun save() {
         val cv = ContentValues()
@@ -196,28 +231,34 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onBackPressed() {
 
+        println("CREATING = $CREATING MODIFIED = $MODIFIED")
+
         // if we're simply viewing this trip, then we don't want to leave
         if(!CREATING && !MODIFIED)
             super.onBackPressed()
 
-        val warnUser = AlertDialog.Builder(this)
-
-        if(CREATING)
-            warnUser.setMessage("Careful! You'll be leaving an unsaved trip \n\n Are you sure you wish to discard changes?")
-        if(MODIFIED)
-            warnUser.setMessage("Careful! You'll be discarding unsaved changes \n\n Are you sure you wish to discard changes?")
+        else {
+            val warnUser = AlertDialog.Builder(this)
 
 
-        warnUser.setPositiveButton("Save") { d, i ->
-            save()
-            finish()
+            // set the appropriate warning message
+            if (CREATING)
+                warnUser.setMessage("Careful! You'll be leaving an unsaved trip \n\n Are you sure you wish to discard changes?")
+            if (MODIFIED)
+                warnUser.setMessage("Careful! You'll be discarding unsaved changes \n\n Are you sure you wish to discard changes?")
+
+
+            warnUser.setPositiveButton("Save") { d, i ->
+                save()
+                finish()
+            }
+
+            warnUser.setNegativeButton("No, exit") { d, i ->
+                super.onBackPressed()
+            }
+
+            warnUser.show()
         }
-
-        warnUser.setNegativeButton("No, exit") { d, i ->
-            super.onBackPressed()
-        }
-
-        warnUser.show()
     }
 
 

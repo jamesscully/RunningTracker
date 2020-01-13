@@ -7,11 +7,14 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.ColorFilter
+import android.graphics.drawable.Drawable
 import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.view.View
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -75,7 +78,6 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
             trackService = (service as TrackService.OurLocBinder).getService()
 
 
-
             binder = service
             onResume()
         }
@@ -135,10 +137,12 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
 
     fun pauseRun() {
         trackService?.pause()
+        track_toggle.setBackgroundResource(R.drawable.sty_button_track_start)
     }
 
     fun resumeRun() {
         trackService?.startTracking()
+        track_toggle.setBackgroundResource(R.drawable.sty_button_track_pause)
     }
 
     fun stopAndDestroy() {
@@ -168,23 +172,25 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
 
         if(binder != null) {
 
+            // remove it from the foreground to get our buffer
             trackService?.removeForeground()
-
-            println("Binder = $binder")
 
             // if we have new trackpoints since being unbound, then we'll need to add them
             if(binder?.haveNewTrackpoints()!!) {
+
                 val new = binder?.getNewTrackpoints()!!
 
                 println("Received trackpoints: $new")
 
                 trackpoints.addAll(new)
 
+                // add all new trackpoints individually - this prevents a straight line being drawn.
                 for(x in new) {
                     plotNew(x)
                 }
             }
 
+            // if we have no trackpoints, then set both start and last; this prevents other functions failing (determining time, distance etc.)
             if(trackpoints.size > 0) {
                 START_TRACKPOINT = trackpoints[0]
                 LAST_TRACKPOINT  = trackpoints.last()
@@ -217,6 +223,8 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
 
     // we'll just plot the new one, instead of re-drawing the plotline for each trackpoint added
     fun plotNew(track : Trackpoint) {
+
+        track_stop.visibility = View.VISIBLE
 
         // if we haven't initialized LAST yet, then this should be last.
         if(!::LAST_TRACKPOINT.isInitialized) {
