@@ -82,6 +82,9 @@ It does however use Java for the ContentProvider and SQLiteDatabase, as the auth
 
 The application itself allows for the importing of GPX (albeit very verbose) data, tracking of running and annotating each trip through ratings and comments on milestones throughout the run.
 
+\textbf{Note: If you encounter the error \textit{New Gradle Sync is not supported due to containing Kotlin modules} change the below setting:}
+\textit{File -> Settings -> Kotlin Compiler -> Target JVM Version} to 1.8
+
 \section{Terminology}
 \subsection{Trip} 
 A \textit{Trip} refers to a run; as the user could use this for running/walking/journeys, we decided to name it trip. It is a dataclass found as Trip.kt. It holds the following: \\
@@ -151,6 +154,7 @@ Once the user navigates away from the activity, in the case that they put it int
 Once the user comes back to the application, we will bind back to the activity. This removes the service from the foreground, as we do not need it whilst they are using our app. \\
 When this happens, the BOUNDED variable will be updated in the service and once we receive our binder, we retrieve the services buffer (which is then cleared) and we add each new Trackpoint to the activities buffer aswell as the map. \\
 
+You can view a diagram of this in Appendix 7.1
 
 \section{Database}
 
