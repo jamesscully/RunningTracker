@@ -1,16 +1,10 @@
 package com.scullyapps.mdprunningtracker.activities
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
-import androidx.appcompat.widget.Toolbar
-
+import androidx.appcompat.app.AppCompatActivity
 import com.scullyapps.mdprunningtracker.R
 import kotlinx.android.synthetic.main.activity_main.*
-import org.json.JSONArray
-import org.json.JSONObject
-import org.json.JSONStringer
 
 class MainActivity : AppCompatActivity() {
 

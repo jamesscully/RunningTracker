@@ -1,11 +1,7 @@
 package com.scullyapps.mdprunningtracker.model
 
-import android.graphics.Color
-import android.location.Location
 import android.os.Parcel
 import android.os.Parcelable
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.android.SphericalUtil
 

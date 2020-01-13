@@ -5,14 +5,10 @@ import android.net.Uri
 import com.scullyapps.mdprunningtracker.model.Movement
 import com.scullyapps.mdprunningtracker.model.Trackpoint
 import com.scullyapps.mdprunningtracker.model.Trip
+import org.w3c.dom.Element
 import java.io.InputStream
-import org.w3c.dom.Element;
-import java.text.DateFormat
-import java.text.SimpleDateFormat
 import java.time.Instant
-import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
-import kotlin.collections.ArrayList
 
 // this class takes a GPX file, and parses it to take out the necessary data.
 class GPX (context: Context, proposedID : Int, uri : Uri) {

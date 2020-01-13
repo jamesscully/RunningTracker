@@ -1,7 +1,10 @@
 package com.scullyapps.mdprunningtracker.services
 
 import android.Manifest
-import android.app.*
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,11 +14,10 @@ import android.location.LocationManager
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
-import com.google.android.gms.maps.model.LatLng
 import android.util.Log
 import androidx.core.content.ContextCompat
+import com.google.android.gms.maps.model.LatLng
 import com.scullyapps.mdprunningtracker.R
-import com.scullyapps.mdprunningtracker.database.DBHelper
 import com.scullyapps.mdprunningtracker.model.Trackpoint
 
 

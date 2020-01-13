@@ -3,14 +3,11 @@ package com.scullyapps.mdprunningtracker.activities
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.gms.maps.SupportMapFragment
 import com.scullyapps.mdprunningtracker.R
 import kotlinx.android.synthetic.main.activity_intro.*
 

@@ -5,7 +5,6 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -14,9 +13,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.scullyapps.mdprunningtracker.R
 import com.scullyapps.mdprunningtracker.model.Trackpoint
 import kotlinx.android.synthetic.main.view_trackpoint.view.*
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
+import java.util.Calendar
+import java.util.TimeZone
 
 class TrackAdapter (private val dataset : ArrayList<Trackpoint>, private val comments : HashMap<Int, String>) : RecyclerView.Adapter<TrackAdapter.TrackViewHolder>() {
     private val TAG: String = "TrackAdapter"

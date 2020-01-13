@@ -2,35 +2,28 @@ package com.scullyapps.mdprunningtracker.activities
 
 import android.content.ContentValues
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.MotionEvent
 import android.view.View
-import android.widget.Toast
-import androidx.core.view.children
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.CircleOptions
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.PolylineOptions
 import com.scullyapps.mdprunningtracker.R
 import com.scullyapps.mdprunningtracker.adapters.TrackAdapter
-import com.scullyapps.mdprunningtracker.adapters.TripAdapter
 import com.scullyapps.mdprunningtracker.database.Contract
-import com.scullyapps.mdprunningtracker.model.Comment
 import com.scullyapps.mdprunningtracker.model.Movement
 import com.scullyapps.mdprunningtracker.model.Trackpoint
 import com.scullyapps.mdprunningtracker.model.Trip
 import kotlinx.android.synthetic.main.activity_view_trip.*
-import androidx.core.app.ComponentActivity
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-import androidx.appcompat.app.AlertDialog
 
 
 class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -90,13 +83,13 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
             trip.getMovement(this)
         }
 
+
+        // set up our views
         act_trip_name.setText(trip.name)
 
         act_trip_distance.text  = trip.getDistanceStamp()
         act_trip_time.text      = trip.getTimeStamp()
-
         act_trip_speed.text     = trip.getAverageDistance()
-
         act_trip_rating.rating = trip.rating.toFloat()
 
 
@@ -253,7 +246,7 @@ class ViewTripActivity : AppCompatActivity(), OnMapReadyCallback {
                 finish()
             }
 
-            warnUser.setNegativeButton("No, exit") { d, i ->
+            warnUser.setNegativeButton("Yes, exit") { d, i ->
                 super.onBackPressed()
             }
 

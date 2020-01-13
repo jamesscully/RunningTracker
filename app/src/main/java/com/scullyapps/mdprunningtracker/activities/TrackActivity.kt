@@ -1,26 +1,22 @@
 package com.scullyapps.mdprunningtracker.activities
 
-import android.Manifest
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.pm.PackageManager
 import android.graphics.Color
-import android.graphics.ColorFilter
-import android.graphics.drawable.Drawable
 import android.location.LocationManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import android.view.View
-import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.CircleOptions
+import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.android.SphericalUtil
 import com.scullyapps.mdprunningtracker.R
 import com.scullyapps.mdprunningtracker.database.DBHelper
@@ -29,7 +25,6 @@ import com.scullyapps.mdprunningtracker.model.Trackpoint
 import com.scullyapps.mdprunningtracker.model.Trip
 import com.scullyapps.mdprunningtracker.services.TrackService
 import kotlinx.android.synthetic.main.activity_track.*
-import kotlin.math.round
 
 class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
 
@@ -42,21 +37,14 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
     var trackService : TrackService? = null
     var binder : TrackService.OurLocBinder? = null
 
-
-    var currentLatLng: LatLng = LatLng(0.0,0.0)
-
     var servConnection : TrackConnection = TrackConnection()
 
     lateinit var START_TRACKPOINT : Trackpoint
     lateinit var LAST_TRACKPOINT  : Trackpoint
 
     var distanceTravelled : Double = 0.0
-
     var trackpoints = ArrayList<Trackpoint>()
-
     var runTime   : Long = 0
-
-    var pausedTime = 0
 
 
     val getUnixNow get() = System.currentTimeMillis() / 1000L
@@ -76,7 +64,6 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
         override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
             Log.d(TAG, "We've connected to the service")
             trackService = (service as TrackService.OurLocBinder).getService()
-
 
             binder = service
             onResume()
@@ -135,30 +122,6 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
 
     }
 
-    fun pauseRun() {
-        trackService?.pause()
-        track_toggle.setBackgroundResource(R.drawable.sty_button_track_start)
-    }
-
-    fun resumeRun() {
-        trackService?.startTracking()
-        track_toggle.setBackgroundResource(R.drawable.sty_button_track_pause)
-    }
-
-    fun stopAndDestroy() {
-        trackService?.stop()
-    }
-
-    fun startAndBind() {
-        val int = Intent(this.application, TrackService::class.java)
-        this.application.bindService(int, servConnection, Context.BIND_AUTO_CREATE)
-        trackService?.tID = DBHelper(this).nextTripId
-    }
-
-    fun unbind() {
-        application.unbindService(servConnection)
-    }
-
     override fun onPause() {
         super.onPause()
         trackService?.startForeground()
@@ -202,16 +165,38 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
             trackService?.onNewLocation = { track ->
                 trackpoints.add(track)
                 plotNew(track)
-                calculateStats()
             }
         }
     }
 
-    fun calculateStats() {
-        // track_distance.text = SphericalUtil.computeDistanceBetween(START_TRACKPOINT.latLng, LAST_TRACKPOINT.latLng).toString().plus("m")
+
+    private fun pauseRun() {
+        trackService?.pause()
+        track_toggle.setBackgroundResource(R.drawable.sty_button_track_start)
     }
 
-    fun plot() {
+    private fun resumeRun() {
+        trackService?.startTracking()
+        track_toggle.setBackgroundResource(R.drawable.sty_button_track_pause)
+    }
+
+    private fun stopAndDestroy() {
+        trackService?.stop()
+    }
+
+    private fun startAndBind() {
+        val int = Intent(this.application, TrackService::class.java)
+        this.application.bindService(int, servConnection, Context.BIND_AUTO_CREATE)
+        trackService?.tID = DBHelper(this).nextTripId
+    }
+
+    private fun unbind() {
+        application.unbindService(servConnection)
+    }
+
+
+
+    private fun plot() {
         val opts = PolylineOptions().color(Color.MAGENTA)
 
         for(x in trackpoints) {
@@ -222,8 +207,10 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
     }
 
     // we'll just plot the new one, instead of re-drawing the plotline for each trackpoint added
-    fun plotNew(track : Trackpoint) {
+    private fun plotNew(track : Trackpoint) {
 
+
+        // we don't want the user to stop before any data has been collected; else we'll run into an OutOfBounds exception
         track_stop.visibility = View.VISIBLE
 
         // if we haven't initialized LAST yet, then this should be last.
@@ -257,25 +244,13 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
     }
 
 
-    val runnerDot = CircleOptions()
-        .fillColor(Color.BLUE)
-        .radius(0.5)
 
-
-    fun drawRunnerDot() {
-        googleMap.clear()
-        googleMap.addCircle(
-            runnerDot.center(currentLatLng)
-        )
-    }
-
-
-
-    fun highlightTrackpoint(track : Trackpoint) {
+    private fun highlightTrackpoint(track : Trackpoint) {
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(track.latLng, 17.5f))
     }
 
-    fun getTimeStamp() : String {
+    // returns a timestamp in the format of 1h30m10s
+    private fun getTimeStamp() : String {
         runTime = getUnixNow - START_TRACKPOINT.time
 
         var temp : Long = runTime
@@ -296,7 +271,7 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
         return out
     }
 
-    fun getAverageDistance() : String {
+    private fun getAverageDistance() : String {
         val distance = distanceTravelled
         val time = runTime
 
@@ -311,7 +286,7 @@ class TrackActivity : AppCompatActivity(), OnMapReadyCallback{
         return (getDistanceStamp(average) + " / min")
     }
 
-    fun getDistanceStamp(dist : Double = -1.0) : String {
+    private fun getDistanceStamp(dist : Double = -1.0) : String {
 
         var d : Double
 

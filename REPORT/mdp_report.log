@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Arch Linux) (preloaded format=pdflatex 2019.11.20)  12 JAN 2020 19:59
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Arch Linux) (preloaded format=pdflatex 2019.11.20)  13 JAN 2020 04:59
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -391,7 +391,7 @@ LaTeX Info: Redefining \nameref on input line 51.
 \openout3 = `mdp_report.out'.
 
 \c@lstlisting=\count121
-<./images/runtlogo_dark.png, id=44, 1610.015pt x 347.2975pt>
+<./images/runtlogo_dark.png, id=52, 1610.015pt x 347.2975pt>
 File: ./images/runtlogo_dark.png Graphic file (type png)
 <use ./images/runtlogo_dark.png>
 Package pdftex.def Info: ./images/runtlogo_dark.png  used on input line 58.
@@ -496,43 +496,48 @@ Underfull \hbox (badness 10000) in paragraph at lines 151--153
  []
 
 [5]
-Underfull \hbox (badness 10000) in paragraph at lines 170--171
+Underfull \hbox (badness 10000) in paragraph at lines 171--172
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 172--173
+Underfull \hbox (badness 10000) in paragraph at lines 173--174
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 175--176
+Underfull \hbox (badness 10000) in paragraph at lines 176--177
 
  []
 
 [6]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 201.
- [7]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 201.
- (./mdp_report.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 201.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 201.
+<./images/trackservice.png, id=98, 860.21375pt x 660.4675pt>
+File: ./images/trackservice.png Graphic file (type png)
+<use ./images/trackservice.png>
+Package pdftex.def Info: ./images/trackservice.png  used on input line 185.
+(pdftex.def)             Requested size: 469.75502pt x 360.6783pt.
+<./images/activities_navigation.png, id=99, 543.02875pt x 632.3625pt>
+File: ./images/activities_navigation.png Graphic file (type png)
+<use ./images/activities_navigation.png>
+Package pdftex.def Info: ./images/activities_navigation.png  used on input line
+ 188.
+(pdftex.def)             Requested size: 469.75502pt x 547.05359pt.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 190.
+ [7 <./images/trackservice.png>] [8 <./images/activities_navigation.png>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 190.
 
-
-Package rerunfilecheck Warning: File `mdp_report.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `mdp_report.out':
-(rerunfilecheck)             Before: 5A2EDD7A1B652BB3D92D8A8FAB279F01;524
-(rerunfilecheck)             After:  8D3BC7CC5BE9BA990A950B9F3FA126D0;647.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 201.
+(./mdp_report.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 190.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 190.
+Package rerunfilecheck Info: File `mdp_report.out' has not changed.
+(rerunfilecheck)             Checksum: DFBB98BB7BC6EF4D61B5B2E3F8066EF1;672.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 190.
  ) 
 Here is how much of TeX's memory you used:
- 9117 strings out of 492167
- 133294 string characters out of 6131557
+ 9134 strings out of 492167
+ 133750 string characters out of 6131557
  431678 words of memory out of 5000000
- 13375 multiletter control sequences out of 15000+600000
+ 13391 multiletter control sequences out of 15000+600000
  11703 words of font info for 30 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  45i,12n,46p,409b,310s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -541,10 +546,10 @@ exmf-dist/fonts/type1/public/cm-super/sfbx1095.pfb></usr/share/texmf-dist/fonts
 /type1/public/cm-super/sfbx1200.pfb></usr/share/texmf-dist/fonts/type1/public/c
 m-super/sfbx1440.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sfrm109
 5.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sfti1095.pfb>
-Output written on mdp_report.pdf (7 pages, 139960 bytes).
+Output written on mdp_report.pdf (8 pages, 206190 bytes).
 PDF statistics:
- 122 PDF objects out of 1000 (max. 8388607)
- 104 compressed objects within 2 object streams
- 21 named destinations out of 1000 (max. 500000)
- 86 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 138 PDF objects out of 1000 (max. 8388607)
+ 115 compressed objects within 2 object streams
+ 22 named destinations out of 1000 (max. 500000)
+ 112 words of extra memory for PDF output out of 10000 (max. 10000000)
 

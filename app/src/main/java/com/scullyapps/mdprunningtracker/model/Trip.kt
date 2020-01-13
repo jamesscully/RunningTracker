@@ -3,8 +3,6 @@ package com.scullyapps.mdprunningtracker.model
 import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
-import android.util.JsonWriter
-import com.google.android.gms.common.util.JsonUtils
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.android.SphericalUtil
@@ -12,9 +10,6 @@ import com.scullyapps.mdprunningtracker.database.Contract
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import org.json.JSONStringer
-import java.io.OutputStream
-import java.io.OutputStreamWriter
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -75,17 +70,6 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable {
         return DateFormat.getDateInstance().format(Date(movement.trackpoints[0].time * 1000L))
     }
 
-    fun getStartDateCal() : Calendar {
-        val c = Calendar.getInstance()
-        c.timeInMillis = movement.trackpoints[0].time * 1000L
-
-
-        val dateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
-        println("Trip start date: ${dateFormat.format(c.time)}")
-
-        return c
-    }
-
     // this function generates the stamp for distance, i.e. 1.31km or 300m
     fun getDistanceStamp(dist : Double = -1.0) : String {
 
@@ -122,7 +106,6 @@ data class Trip(val id: Int, var name: String, var notes: String) : Parcelable {
     }
 
     fun getDistance() : Double {
-
         val first = movement.trackpoints[0].latLng
         val last  = movement.trackpoints.last().latLng
 

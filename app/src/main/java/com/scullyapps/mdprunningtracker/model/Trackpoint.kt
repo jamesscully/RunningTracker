@@ -4,6 +4,7 @@ import android.database.Cursor
 import android.os.Parcel
 import android.os.Parcelable
 import com.google.android.gms.maps.model.LatLng
+import kotlin.math.round
 
 // this class functions like a GPX trkpt
 data class Trackpoint(val tID  : Int,

@@ -4,9 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.net.Uri;
-
-import androidx.annotation.NonNull;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -49,15 +46,18 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("INSERT INTO Movement (tID, seq, lat, lng, elev, time) VALUES (1, 4, -54, 50, 50, 1577628585)");
     }
 
+    // cannot put this into the content resolver, as we don't want to cast the ContentProvider
     public int getNextTripId() {
         SQLiteDatabase db = getWritableDatabase();
 
+        // note the table name; we're not getting a Trackpoint seq
         Cursor c = db.rawQuery("SELECT seq FROM sqlite_sequence WHERE name='Trip'", null);
 
         c.moveToFirst();
             int max = c.getInt(0);
         c.close();
 
+        // returns the highest id used + 1 for next Trip
         return (max + 1);
     }
 
